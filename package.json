@@ -1,0 +1,31 @@
+{
+  "name": "immy",
+  "version": "1.0.0-indev",
+  "description": "Fast immutable data structures that use change-tracking",
+  "main": "dist/immy.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "test": "jest"
+  },
+  "keywords": [
+    "immutable",
+    "fast",
+    "change",
+    "track",
+    "data",
+    "structures",
+    "collections"
+  ],
+  "author": "Matthew Henry <matt@emergentstudios.io>",
+  "license": "ISC",
+  "devDependencies": {
+    "immutable": "3.8.x",
+    "jest": "^22.4.3",
+    "left-pad": "1.2.x",
+    "mori": "^0.3.2",
+    "single-line-log": "1.1.x",
+    "v8-natives": "1.1.x",
+    "webpack": "4.4.x",
+    "webpack-cli": "2.0.x"
+  }
+}
