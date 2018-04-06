@@ -1,3 +1,6 @@
 {
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "jest.showCoverageOnLoad": true
 }

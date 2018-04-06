@@ -14,10 +14,11 @@ import shiftOnePatch from './shiftOnePatch'
 import shiftManyPatch from './shiftManyPatch'
 import growPatch from './growPatch'
 import splicePatch from './splicePatch'
+import { formatObj } from '../util';
 
 class ListRoot {}
 
-const _getBackingStack = new _MutableStack()
+let _getBackingStack = new _MutableStack()
 
 export default class _List {
 
@@ -49,27 +50,24 @@ export default class _List {
 
   set (index, value) {
     if (index < 0) {
-      index = this.size - index
+      index = this.size + index // equivalent of this.size - Math.abs(index)
     }
 
-    if (index === 0) {
-      return this.unshift(value)
-    } else if (index < 0) {
+    if (index < 0) {
       // this supports compatibility with Immutable's handling of negative
       // indexes, e.g:
       //
       // List(['a', 'b', 'c']).set(-6, 'x') 
       //    == List(['x', undefined, undefined, 'a', 'b', 'c'])
 
-      const newSize = Math.abs(index)
-      let unshiftManyArgs = new Array(newSize - this.size)
+      let unshiftManyArgs = new Array(Math.abs(index))
       unshiftManyArgs[0] = value
 
       return this._withPatch(unshiftManyPatch, 0, unshiftManyArgs, null)
     } else if (index === this.size) {
       return this.push(value)
     } else if (index < this.size) {
-      return this._withPatch(setPatch, index, this._getBacking()[index], value)
+      return this._withPatch(setOnePatch, index, this._getBacking()[index], value)
     } else {
       return this.setSize(index + 1).set(index, value)
     }
@@ -77,7 +75,7 @@ export default class _List {
 
   get (index) {
     if (index < 0) {
-      index = this.size - index
+      index = this.size + index // equivalent of this.size - Math.abs(index)
     }
 
     if (index < 0 || index >= this.size) {
@@ -89,7 +87,7 @@ export default class _List {
 
   delete (index) {
     if (index < 0) {
-      index = this.size - index
+      index = this.size + index
     }
 
     if (index <= 0) {
@@ -104,7 +102,7 @@ export default class _List {
 
   insert (index, value) {
     if (index < 0) {
-      index = this.size - index
+      index = this.size + index
     }
 
     if (index <= 0) {
@@ -146,7 +144,9 @@ export default class _List {
   }
 
   popMany (deleteCount) {
-    if (this.size - deleteCount <= 0) {
+    if (deleteCount === 0) {
+      return this
+    } if (this.size - deleteCount <= 0) {
       return emptyListInstance
     } else if (deleteCount === 1) {
       return this.pop()
@@ -182,12 +182,14 @@ export default class _List {
     if (this.size <= 1) {
       return emptyListInstance
     } else {
-      return this._withPatch(shiftPatch, 0, this._getBacking()[0], null)
+      return this._withPatch(shiftOnePatch, 0, this._getBacking()[0], null)
     }
   }
 
   shiftMany (deleteCount) {
-    if (this.size - deleteCount <= 0) {
+    if (deleteCount === 0) {
+      return this
+    } else if (this.size - deleteCount <= 0) {
       return emptyListInstance
     } else if (deleteCount === 1) {
       return this.shift()
@@ -209,25 +211,32 @@ export default class _List {
     } else if (newSize === this.size) {
       return this
     } else if (newSize < this.size) {
-      return this.splice((this.size - newSize) - 1)
+      return this.splice((this.size - newSize) + 1)
     } else {
       return this._withPatch(growPatch, this.size, newSize, null)
     }
   }
 
-  splice (index, deleteCount /*, values */) {
+  splice (/* arguments */) {
     if (arguments.length === 0) {
       return this
     }
     
+    // we update the arguments object here so that we can pass it directly to
+    // Array.splice.
+    let index = arguments[0]
     if (index < 0) {
-      index = Math.max(this.size - index, 0)
+      index = Math.max(this.size + index, 0)
+      arguments[0] = index
+    } else if (index >= this.size) {
+      index = this.size
+      arguments[0] = index
     }
 
-    if (arguments.length === 1) {
-      deleteCount = this.size - index
-    } else {
-      deleteCount = Math.min(deleteCount, this.size - index)
+    let deleteCount = this.size - index
+    if (arguments.length >= 2) {
+      deleteCount = Math.min(arguments[1], this.size - index)
+      arguments[1] = deleteCount
     }
 
     // this function exists as a wrapper to actually splicing. in many cases, it's
@@ -238,10 +247,10 @@ export default class _List {
     // this blows out the complexity of this method to absurd levels, but the
     // optimizations this allows vastly overshadow the increased cost of splicing.
     
-    if (arguments.length < 2 && deleteCount === 0) {
+    if (arguments.length <= 2 && deleteCount === 0) {
       return this
 
-    } else if (arguments.length < 2 && deleteCount > 0) {
+    } else if (arguments.length <= 2 && deleteCount > 0) {
       // removals only
       if (index === 0 && deleteCount === this.size) {
         return emptyListInstance
@@ -256,20 +265,34 @@ export default class _List {
     } else if (arguments.length > 2 && deleteCount === 0) {
       // insertions only
       if (arguments.length === 3) {
-        return this.push(arguments[2])
-      } else {
-        const values = new Array(arguments.length - 2)
-        for (let i = 2; i < arguments.length; ++i) {
-          values[i - 2] = arguments[i]
+        if (index >= this.size) {
+          return this.push(arguments[2])
+        } else if (index <= 0) {
+          return this.unshift(arguments[2])
+        } else {
+          return this.insert(index, arguments[2])
         }
+      } else {
+        if (index <= 0 || index >= this.size) {
+          const values = new Array(arguments.length - 2)
+          for (let i = 2; i < arguments.length; ++i) {
+            values[i - 2] = arguments[i]
+          }
 
-        return this._withPatch(pushManyPatch, this.size, values, null)
+          if (index <= 0) {
+            return this._withPatch(unshiftManyPatch, 0, values, null)
+          } else {
+            return this._withPatch(pushManyPatch, this.size, values, null)
+          }
+        } else {
+          return this._spliceImpl.apply(this, arguments)
+        }
       }
 
     } else if (arguments.length > 2 && arguments.length - 2 === deleteCount) {
       // replacement, don't need to change the size of the list
       if (deleteCount === 1) {
-        return this.set(index, this.arguments[2])
+        return this.set(index, arguments[2])
       } else {
         const backing = this._getBacking()
         const oldValues = new Array(deleteCount)
@@ -328,6 +351,14 @@ export default class _List {
     throw new Error('observeChangesFor is not implemented yet')
   }
 
+  toString () {
+    return 'ImmyList [ ' + this._getBacking().map(x => formatObj(x)).join(', ') + ' ]'
+  }
+
+  inspect () {
+    return this.toString()
+  }
+
   _withPatch (patchFunc, index, x, y) {
     patchFunc(this._getBacking(), index, x, y)
     return this._afterPatch(patchFunc, index, x, y)
@@ -359,20 +390,22 @@ export default class _List {
     // we cache this stack for use between calls to improve performance. (this is
     // done in an exception-safe manner)
 
-    // claim the cached stack and null the cache out
-    let stack = _getBackingStack || new _MutableStack()
+    // claim the cached stack and null the cache out, so that if there's any bugs
+    // in the patching process that throw exceptions, future calls will throw a
+    // null reference exception instead of silently breaking
+    let stack = _getBackingStack
     _getBackingStack = null
 
     let target = this
     while (target != null) {
       stack.push(target)
-      target = target.patchTarget
+      target = target._patchTarget
     }
 
-    backed = stack.pop()
+    let backed = stack.pop()
     while (stack.size > 0) {
       let unbacked = stack.pop()
-      unbacked.patchFunc(backed._backing, unbacked._i, unbacked._x, unbacked._y)
+      unbacked._patchFunc(backed._backing, unbacked._i, unbacked._x, unbacked._y)
 
       // invert the situation so that the previously-backed list now points at the
       // previously-unbacked list and can recover its backing
@@ -395,9 +428,13 @@ export default class _List {
 
     // we're all safely done, we can return the empty stack to the cache
     _getBackingStack = stack
+
+    return this._backing
   }
 
   _spliceImpl (/* arguments */) {
+    console.log('_spliceImpl', arguments)
+
     // this is only ever called with sanitised arguments which are safe to pass
     // directly to Array.splice(), and there will always be at least 3 arguments
     const backing = this._getBacking()

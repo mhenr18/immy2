@@ -3,8 +3,9 @@
   "version": "1.0.0-indev",
   "description": "Fast immutable data structures that use change-tracking",
   "main": "dist/immy.js",
+  "module": "src/index.js",
   "scripts": {
-    "build": "webpack --mode production",
+    "build": "webpack",
     "test": "jest"
   },
   "keywords": [
@@ -19,13 +20,26 @@
   "author": "Matthew Henry <matt@emergentstudios.io>",
   "license": "ISC",
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-jest": "^22.4.3",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
     "immutable": "3.8.x",
     "jest": "^22.4.3",
     "left-pad": "1.2.x",
     "mori": "^0.3.2",
+    "regenerator-runtime": "^0.11.1",
     "single-line-log": "1.1.x",
     "v8-natives": "1.1.x",
     "webpack": "4.4.x",
     "webpack-cli": "2.0.x"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "./coverage",
+    "coverageReporters": [
+      "text",
+      "html",
+      "lcov"
+    ]
   }
 }

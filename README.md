@@ -9,6 +9,9 @@ Note however that the bundled code is not minified, nor is it transpiled
 into ES5. If you want to use Immy in browsers that only support ES5, you will
 need to handle this transpilation yourself.
 
+(Babel is included in the project purely to allow Jest to resolve imports and
+exports, so that it can run unit tests.)
+
 To support tree-shaking, the unbundled ES2015 code is also included in the
 package. Recent Webpack versions should support this without any extra
 configuration.
