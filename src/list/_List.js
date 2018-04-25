@@ -1,5 +1,9 @@
 import { emptyListInstance } from './_EmptyList'
+import { formatObj } from '../util'
+import ListObserverWrapper from './ListObserverWrapper'
 import _MutableStack from '../mutable/_MutableStack'
+import _MutableQueue from '../mutable/_MutableQueue'
+import _MutablePool from '../mutable/_MutablePool'
 import setOnePatch from './setOnePatch'
 import setManyPatch from './setManyPatch'
 import deletePatch from './deletePatch'
@@ -14,11 +18,16 @@ import shiftOnePatch from './shiftOnePatch'
 import shiftManyPatch from './shiftManyPatch'
 import growPatch from './growPatch'
 import splicePatch from './splicePatch'
-import { formatObj } from '../util';
+import deleteManySparsePatch from './deleteManySparsePatch'
 
-class ListRoot {}
-
-let _getBackingStack = new _MutableStack()
+// we cache the temporary data structures used in order to save memory.
+// these caches are implemented as pools to ensure that all methods
+// are re-entrant  (when a method is using something, it will remove
+// it from the pool, and when it's done it will add it back. if the method
+// re-enters then a new object will be created if needed).
+let _stackCache = new _MutablePool(() => new _MutableStack())
+let _queueCache = new _MutablePool(() => new _MutableQueue())
+let _changeCache = new _MutablePool(() => ({ index: -1, value: null }))
 
 export default class _List {
 
@@ -27,7 +36,7 @@ export default class _List {
   constructor (backing, root) {
     this._backing = backing
     this.size = backing.length // size is a public API
-    this._root = root || new ListRoot()
+    this.root = root || {} // root is a public API
 
     // there's a 24 byte cost per object (on V8, at least - other engines will
     // almost certainly have similar overheads). because of this, it is more
@@ -42,10 +51,6 @@ export default class _List {
     this._y = null
     this._patchFunc = null
     this._patchTarget = null
-  }
-
-  expand () {
-    return this
   }
 
   set (index, value) {
@@ -335,24 +340,207 @@ export default class _List {
     return this.toArray()
   }
 
-  pureMap (mapper) {
-    throw new Error('pureMap is not implemented yet')
+  // always returns a new disjoint List instance that cannot be efficiently compared
+  // to the original instance
+  map (mapper, thisVal) {
+    let newBacking = new Array(this.size)
+
+    for (let i = 0; i < this.size; ++i) {
+      const existingValue = this.get(i)
+      newBacking[i] = mapper.call(thisVal, existingValue, i, this)
+    }
+    
+    return new _List(newBacking)
   }
 
-  pureFilter (predicate) {
-    throw new Error('pureFilter is not implemented yet')
+  // identical to map() in terms of arguments and immutability semantics, however
+  // mapInPlace performs the mapping operation as a series of set() operations on
+  // this list so that the returned list will be efficiently comparable to the
+  // original instance.
+  //
+  // it only makes sense to use mapInPlace() if your mapper function will return
+  // the existing value in the majority case.
+  //
+  // there is a performance trade-off - you get efficient comparison but lose the
+  // ability to efficiently use the original list and the mapped list at the same
+  // time.
+  mapInPlace (mapper, thisVal) {
+    // because the mapper function might reference the list, it's more efficient
+    // to first create a queue of changes to be applied and then apply them after
+    // we've finished calling the mapper.
+    
+    let changes = _queueCache.remove()
+
+    // get the required changes
+    for (let i = 0; i < this.size; ++i) {
+      const existingValue = this.get(i)
+      const mappedValue = mapper.call(thisVal, existingValue, i, this)
+
+      if (mappedValue !== existingValue) {
+        let change = _changeCache.remove()
+        change.index = i
+        change.value = mappedValue
+
+        changes.push(change)
+      }
+    }
+
+    // and apply them
+    let newList = this
+
+    while (changes.size > 0) {
+      const change = changes.shift()
+
+      newList = newList.set(change.index, change.value)
+
+      change.index = -1
+      change.value = null
+      _changeCache.add(change)
+    }
+
+    _queueCache.add(changes)
+    return newList
   }
 
-  pureReduce (reducer, initialValue) {
-    throw new Error('pureReduce is not implemented yet')
+  filter (predicate, thisVal) {
+    let newBacking = new Array(this.size)
+    let nextIndex = 0
+
+    for (let i = 0; i < this.size; ++i) {
+      const existingValue = this.get(i)
+
+      if (predicate.call(thisVal, existingValue, i, this)) {
+        newBacking[nextIndex++] = existingValue
+      }
+    }
+    
+    newBacking.length = nextIndex
+
+    if (newBacking.length === 0) {
+      return emptyListInstance
+    }
+
+    return new _List(newBacking)
   }
 
+  // same concept as mapInPlace - the returned list is comparable to the original.
+  filterInPlace (predicate, thisVal) {
+    let removedIndexes = null
+    let removedValues = null
+
+    // get the required changes
+    let i = 0
+    for (; i < this.size; ++i) {
+      const existingValue = this.get(i)
+
+      if (!predicate.call(thisVal, existingValue, i, this)) {
+        removedIndexes = [i]
+        removedValues = [existingValue]
+        ++i
+        break
+      }
+    }
+
+    // break out into a second loop that doesn't have to null check
+    for (; i < this.size; ++i) {
+      const existingValue = this.get(i)
+
+      if (!predicate.call(thisVal, existingValue, i, this)) {
+        removedIndexes.push(i)
+        removedValues.push(existingValue)
+      }
+    }
+
+    if (removedIndexes == null) {
+      return this
+    }
+
+    if (removedIndexes.length === this.size) {
+      return emptyListInstance
+    }
+
+    // and apply them in a single patch (this is O(n))
+    return this._withPatch(deleteManySparsePatch, -1, removedIndexes, removedValues)
+  }
+
+  reduce (reducer, initialValue, thisVal) {
+    let value = initialValue
+    let i = 0
+    if (arguments.length === 1) {
+      value = this.get(0)
+      i = 1
+    }
+
+    for (; i < this.size; ++i) {
+      value = reducer.call(thisVal, value, this.get(i), i, this)
+    }
+
+    return value
+  }
+
+  // if an observer function returns false, the observation will immediately
+  // stop and this method will return false. otherwise, the method returns true.
   observeChangesFor (otherList, observer) {
-    throw new Error('observeChangesFor is not implemented yet')
+    if (this === otherList) {
+      return true
+    }
+
+    const wrapper = new ListObserverWrapper(observer)
+
+    if (otherList === emptyListInstance) {
+      wrapper.clear(this._getBacking())
+      return wrapper.active
+    }
+
+    if (this.root === otherList.root) {
+      // we can observe changes using patches. as the two lists share a
+      // root, calling ensureBacking on the otherList will cause this list
+      // to have a patch trail leading directly toward the otherList.
+      //
+      // this trail will turn the otherList into this, but we want to go the
+      // other way and look at the patches to turn this into the otherList.
+      // so, we invert the patches.)
+
+      otherList._getBacking()
+
+      let list = this
+      while (list !== otherList && wrapper.active) {
+        list._patchFunc.inverse.callWrapper(list._i, list._x, list._y, wrapper)
+        otherList._getBacking() // in case we do something that references the list and moves the backing
+        list = list._patchTarget
+      }
+    } else {
+      // clear everything and just add everything from the new list.
+      wrapper.clear(this._getBacking())
+
+      if (wrapper.active) {
+        wrapper.pushMany(0, otherList._getBacking())
+      }
+    }
+
+    return wrapper.active
   }
 
   toString () {
-    return 'ImmyList [ ' + this._getBacking().map(x => formatObj(x)).join(', ') + ' ]'
+    if (this.size < 13) {
+      return `ImmyList(${this.size}) [ `
+      + this._getBacking().map(x => formatObj(x)).join(', ')
+      + ' ]'
+    } else {
+      let str = `ImmyList(${this.size}) [ `
+
+      for (let i = 0; i < 10; ++i) {
+        if (i > 0) {
+          str += ', '
+        }
+
+        str += formatObj(this.get(i))
+      }
+
+      str += `, ... , ${formatObj(this.get(-2))}, ${formatObj(this.get(-1))} ]`
+
+      return str
+    }
   }
 
   inspect () {
@@ -370,7 +558,7 @@ export default class _List {
     this._y = y
     this._patchFunc = patchFunc.inverse
     
-    const newList = new _List(this._backing, this._root)
+    const newList = new _List(this._backing, this.root)
     this._patchTarget = newList
     this._backing = null
 
@@ -386,15 +574,7 @@ export default class _List {
     // don't implement this as a recursive function. instead we build up a stack
     // of lists that need to be given backings, and then work back down the stack
     // applying patches.
-    //
-    // we cache this stack for use between calls to improve performance. (this is
-    // done in an exception-safe manner)
-
-    // claim the cached stack and null the cache out, so that if there's any bugs
-    // in the patching process that throw exceptions, future calls will throw a
-    // null reference exception instead of silently breaking
-    let stack = _getBackingStack
-    _getBackingStack = null
+    let stack = _stackCache.remove()
 
     let target = this
     while (target != null) {
@@ -426,15 +606,11 @@ export default class _List {
       backed = unbacked
     }
 
-    // we're all safely done, we can return the empty stack to the cache
-    _getBackingStack = stack
-
+    _stackCache.add(stack)
     return this._backing
   }
 
   _spliceImpl (/* arguments */) {
-    console.log('_spliceImpl', arguments)
-
     // this is only ever called with sanitised arguments which are safe to pass
     // directly to Array.splice(), and there will always be at least 3 arguments
     const backing = this._getBacking()

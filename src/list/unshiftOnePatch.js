@@ -1,16 +1,17 @@
+import { makePatch } from '../util'
+
 // i = 0
 // x = the new value
 // y = <null>
 
-function unshiftOnePatch (backing, i, x, y) {
-  backing.unshift(x)
-}
+const unshiftOnePatch = makePatch({
+  name: 'shiftOne',
+  apply: (backing, i, x, y) => backing.unshift(x),
+  applyWrapper: (i, x, y, wrapper) => wrapper.unshift(x),
 
-function inverseUnshiftOnePatch (backing, i, x, y) {
-  backing.shift()
-}
-
-unshiftOnePatch.inverse = inverseUnshiftOnePatch
-inverseUnshiftOnePatch.inverse = unshiftOnePatch
+  invertName: 'unshiftOne',
+  invert: (backing, i, x, y) => backing.shift(),
+  invertWrapper: (i, x, y, wrapper) => wrapper.shift(x)
+})
 
 export default unshiftOnePatch

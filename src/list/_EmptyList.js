@@ -1,14 +1,16 @@
-import _ExpandoList from './_ExpandoList'
+import _List from './_List'
+import ListObserverWrapper from './ListObserverWrapper'
 
 let emptyListInstance = null
 
-class _EmptyList extends _ExpandoList {
+class _EmptyList {
   constructor () {
-    super(0)
+    this.size = 0
+    this.root = {}
   }
 
-  onExpand () {
-    return new _List([])
+  set (index, value) {
+    return new _List([]).set(index, value)
   }
 
   get (index) {
@@ -19,15 +21,37 @@ class _EmptyList extends _ExpandoList {
     return this
   }
 
+  insert (index, value) {
+    return new _List([]).insert(index, value)
+  }
+
   clear () {
     return this
+  }
+
+  push (/* values */) {
+    const list = new _List([])
+    return list.push.apply(list, arguments)
   }
 
   pop () {
     return this
   }
 
+  popMany () {
+    return this
+  }
+
+  unshift (/* values */) {
+    const list = new _List([])
+    return list.unshift.apply(list, arguments)
+  }
+
   shift () {
+    return this
+  }
+
+  shiftMany () {
     return this
   }
 
@@ -35,24 +59,58 @@ class _EmptyList extends _ExpandoList {
     if (newSize === 0) {
       return this
     } else {
-      return super.setSize(newSize)
+      return new _List(new Array(newSize))
     }
   }
 
-  pureMap (mapper) {
+  splice (/* arguments */) {
+    const list = new _List([])
+    return list.splice.apply(list, arguments)
+  }
+
+  toArray () {
+    return []
+  }
+
+  toJS () {
+    return this.toArray()
+  }
+
+  map (mapper) {
     return this // if this is empty, then the mapped list would also be empty
   }
 
-  pureFilter (predicate) {
+  mapInPlace (mapper) {
+    return this // if this is empty, then the mapped list would also be empty
+  }
+
+  filter (predicate) {
     return this // nothing to filter out of an empty list
   }
 
-  pureReduce (reducer, initialValue) {
+  filterInPlace (predicate) {
+    return this // nothing to filter out of an empty list
+  }
+
+  reduce (reducer, initialValue) {
     return initialValue
   }
 
   observeChangesFor (otherList, observer) {
-    
+    if (otherList === this) {
+      return
+    }
+
+    const wrapper = new ListObserverWrapper(observer)
+    wrapper.pushMany(0, otherList._getBacking().slice())
+  }
+
+  toString () {
+    return `ImmyList(0) []`
+  }
+
+  inspect () {
+    return this.toString()
   }
 }
 

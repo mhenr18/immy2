@@ -8,8 +8,7 @@ module.exports = [
       path: path.resolve(__dirname, 'dist'),
       filename: 'immy.min.js',
       library: 'immy',
-      libraryTarget: 'umd',
-      globalObject: 'this'
+      libraryTarget: 'commonjs2'
     }
   },
   {
@@ -19,8 +18,7 @@ module.exports = [
       path: path.resolve(__dirname, 'dist'),
       filename: 'immy.js',
       library: 'immy',
-      libraryTarget: 'umd',
-      globalObject: 'this'
+      libraryTarget: 'commonjs2'
     },
     optimization: {
       minimize: false

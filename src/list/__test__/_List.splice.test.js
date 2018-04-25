@@ -68,8 +68,19 @@ describe('_List.splice', () => {
   })
 
   test('works with general cases', () => {
-    const list = new _List(['a', 'b', 'c'])
+    const list = new _List(['a', 'b', 'c', 'd'])
 
-    expect(list.splice(1, 2, 'x').toJS()).toEqual(['a', 'x'])
+    expect(list.splice(1, 2, 'x').toJS()).toEqual(['a', 'x', 'd'])
+  })
+
+  // odd test, but when we splice, we don't actually apply a patch (unlike most
+  // other cases). because of this, we test an invert and re-apply case
+  test('works when applying the patch', () => {
+    const a = new _List(['a', 'b', 'c', 'd'])
+    const b = a.splice(1, 2, 'x')
+
+    expect(b.toJS()).toEqual(['a', 'x', 'd'])
+    expect(a.toJS()).toEqual(['a', 'b', 'c', 'd'])
+    expect(b.toJS()).toEqual(['a', 'x', 'd'])
   })
 })

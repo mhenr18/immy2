@@ -1,16 +1,17 @@
+import { makePatch } from '../util'
+
 // i = index of the item being inserted
 // x = the item being inserted
 // y = <null>
 
-function insertPatch (backing, i, x, y) {
-  backing.splice(i, 0, x)
-}
+const insertPatch = makePatch({
+  name: 'insert',
+  apply: (backing, i, x, y) => backing.splice(i, 0, x),
+  applyWrapper: (i, x, y, wrapper) => wrapper.insert(i, x),
 
-function inverseInsertPatch (backing, i, x, y) {
-  backing.splice(i, 1)
-}
-
-insertPatch.inverse = inverseInsertPatch
-inverseInsertPatch.inverse = insertPatch
+  name: 'delete',
+  invert: (backing, i, x, y) => backing.splice(i, 1),
+  invertWrapper: (i, x, y, wrapper) => wrapper.delete(i, x)
+})
 
 export default insertPatch

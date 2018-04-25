@@ -1,16 +1,21 @@
+import { makePatch } from '../util'
+
 // i = size of the new array (also the index of the first value being popped)
 // x = the values being popped
 // y = <null>
 
-function popManyPatch (backing, i, x, y) {
-  backing.length -= x.length
-}
+const popManyPatch = makePatch({
+  name: 'popMany',
+  apply: (backing, i, x, y) => backing.length -= x.length,
+  applyWrapper: (i, x, y, wrapper) => {
+    for (let j = x.length - 1; j >= 0; --j) {
+      wrapper.pop(i + j, x[j])
+    }
+  },
 
-function inversePopManyPatch (backing, i, x, y) {
-  backing.push.apply(backing, x)
-}
-
-popManyPatch.inverse = inversePopManyPatch
-inversePopManyPatch.inverse = popManyPatch
+  invertName: 'pushMany',
+  invert: (backing, i, x, y) => backing.push.apply(backing, x),
+  invertWrapper: (i, x, y, wrapper) => wrapper.pushMany(i, x)
+})
 
 export default popManyPatch
