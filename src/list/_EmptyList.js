@@ -104,6 +104,10 @@ class _EmptyList {
     return -1
   }
 
+  forEach (sideEffect) {
+    return 0
+  }
+
   map (mapper) {
     return this // if this is empty, then the mapped list would also be empty
   }

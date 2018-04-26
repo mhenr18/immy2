@@ -505,6 +505,16 @@ export default class _List {
     return -1
   }
 
+  forEach (sideEffect, thisVal) {
+    for (let i = 0; i < this.size; ++i) {
+      if (sideEffect.call(thisVal, this.get(i), i, this) === false) {
+        return i
+      }
+    }
+
+    return this.size
+  }
+
   // always returns a new disjoint List instance that cannot be efficiently compared
   // to the original instance
   map (mapper, thisVal) {
