@@ -76,6 +76,14 @@ class _EmptyList {
     return this.toArray()
   }
 
+  find (predicate, thisVal, notSetValue) {
+    return notSetValue
+  }
+
+  findIndex (predicate, thisVal) {
+    return -1
+  }
+
   map (mapper) {
     return this // if this is empty, then the mapped list would also be empty
   }

@@ -4,6 +4,7 @@
   "description": "Fast immutable data structures that use change-tracking",
   "main": "dist/immy.js",
   "module": "src/index.js",
+  "typings": "immy.d.ts",
   "scripts": {
     "build": "webpack",
     "test": "jest",

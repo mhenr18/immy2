@@ -351,6 +351,16 @@ export default class _List {
     return notSetValue
   }
 
+  findIndex (predicate, thisVal) {
+    for (let i = 0; i < this.size; ++i) {
+      if (predicate.call(thisVal, this.get(i), i, this)) {
+        return i
+      }
+    }
+
+    return -1
+  }
+
   // always returns a new disjoint List instance that cannot be efficiently compared
   // to the original instance
   map (mapper, thisVal) {
