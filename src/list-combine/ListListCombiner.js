@@ -3,7 +3,6 @@ import _WeakLruCache from '../helper/_WeakLruCache'
 
 export default class ListListCombiner {
   constructor (getSecondaryKey, combiner) {
-    console.log('constructing ListListCombiner', getSecondaryKey, combiner)
     this.getSecondaryKey = getSecondaryKey
     this.combiner = combiner
 
@@ -13,7 +12,6 @@ export default class ListListCombiner {
   combine (primaryList, secondaryList) {
     let secondaries = new Set()
     const lookup = (secondaryKey) => {
-      console.log('looking up', secondaryKey)
       const secondaryValue = secondaryList.find(s => this.getSecondaryKey(s) === secondaryKey)
       secondaries.add(secondaryKey)
 
@@ -24,8 +22,6 @@ export default class ListListCombiner {
     let cacheEntry = this._cache.swap(primaryList.root, null)
     if (cacheEntry != null) {
       if (cacheEntry.secondaryRoot === secondaryList.root) {
-        console.log('cache hit')
-
         const prevPrimaryList = cacheEntry.primaryList
         const prevSecondaryList = cacheEntry.secondaryList
         let combined = cacheEntry.combined
@@ -142,7 +138,6 @@ export default class ListListCombiner {
       }
     }
 
-    console.log('cache miss')
     cacheEntry = null
 
     let combined = List()
