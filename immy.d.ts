@@ -46,4 +46,50 @@ declare module 'immy' {
     inspect (): string
   }
 
+  export module listSelect {
+    function map <T, TMapped> (mapper: (value: T) => TMapped): ListListSelector<T, TMapped>
+    function filter <T> (predicate: (value: T) => boolean): ListListSelector<T, T>
+    function asType <TNew> (): ListListSelector<TNew, TNew>
+
+    function reduce <T> (
+      reducer: (partialReduction: T, value: T) => T
+    ): ListValueSelector<T, T>
+
+    function reduce <T, TReduction> (
+      reducer: (partialReduction: TReduction, value: T) => TReduction,
+      initialValue: TReduction
+    ): ListValueSelector<T, TReduction>
+  }
+
+  export type ListListSelector <TInput, TOutput> = {
+    (list: List<TInput>): List<TOutput>
+
+    map <TMapped> (mapper: (value: TOutput) => TMapped): ListListSelector<TInput, TMapped>
+    filter (predicate: (value: TOutput) => boolean): ListListSelector<TInput, TOutput>
+    asType <TNew> (): ListListSelector<TInput, TNew>
+
+    reduce (
+      reducer: (partialReduction: TOutput, value: TOutput) => TOutput
+    ): ListValueSelector<TInput, TOutput>
+
+    reduce <TReduction> (
+      reducer: (partialReduction: TReduction, value: TOutput) => TReduction,
+      initialValue: TReduction
+    ): ListValueSelector<TInput, TReduction>
+  }
+
+  export type ListValueSelector <TInput, TValue> = {
+    (list: List<TInput>): TValue
+  }
+
+  export module listCombine {
+    function withList <TPrimary, TSecondary, TSecondaryKey, TCombined> (
+      getSecondaryKey: (s: TSecondary) => TSecondaryKey,
+      combinerFunc: (p: TPrimary, lookup: (key: TSecondaryKey) => TSecondary) => TCombined
+    ): ListCombiner<TPrimary, TSecondary, TCombined>
+  }
+
+  export type ListCombiner <TPrimary, TSecondary, TCombined> = {
+    (primary: List<TPrimary>, secondary: List<TSecondary>): List<TCombined>
+  }
 }
