@@ -37,6 +37,7 @@ declare module 'immy' {
     toJS (): T[]
     find (predicate: (value?: T, index?: number, list?: List<T>) => boolean, thisVal?: any, notSetValue?: T): T
     findIndex (predicate: (value?: T, index?: number, list?: List<T>) => boolean, thisVal?: any): number
+    [Symbol.iterator](): IterableIterator<T>
     forEach (sideEffect: (value?: T, index?: number, list?: List<T>) => any, thisVal?: any): number
     map <TMapped> (mapper: (value?: T, index?: number, list?: List<T>) => TMapped, thisVal?: any): List<TMapped>
     mapInPlace <TMapped> (mapper: (value?: T, index?: number, list?: List<T>) => TMapped, thisVal?: any): List<TMapped>

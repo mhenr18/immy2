@@ -104,6 +104,9 @@ class _EmptyList {
     return -1
   }
 
+  // yields no values
+  * [Symbol.iterator]() {}
+
   forEach (sideEffect) {
     return 0
   }

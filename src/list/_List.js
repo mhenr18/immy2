@@ -505,6 +505,12 @@ export default class _List {
     return -1
   }
 
+  * [Symbol.iterator]() {
+    for (let i = 0; i < this.size; ++i) {
+      yield this.get(i)
+    }
+  }
+
   forEach (sideEffect, thisVal) {
     for (let i = 0; i < this.size; ++i) {
       if (sideEffect.call(thisVal, this.get(i), i, this) === false) {
