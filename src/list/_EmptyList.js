@@ -25,6 +25,26 @@ class _EmptyList {
     return new _List([]).insert(index, value)
   }
 
+  insertSorted (value, keySelector) {
+    return new _List([]).insertSorted(value, keySelector)
+  }
+
+  indexOfSorted (value, keySelector) {
+    return -1
+  }
+
+  binaryFindByKey (targetKey, keySelector, notSetValue) {
+    return notSetValue
+  }
+
+  binaryFindIndexByKey (targetKey, keySelector) {
+    return -1
+  }
+
+  binaryFindInsertionIndexByKey (targetKey, keySelector) {
+    return 0
+  }
+
   clear () {
     return this
   }

@@ -19,6 +19,11 @@ declare module 'immy' {
     get (index: number): T
     delete (index: number): List<T>
     insert (index: number, value: T): List<T>
+    insertSorted <TKey> (value: T, keySelector: (value: T) => TKey): List<T>
+    indexOfSorted <TKey> (value: T, keySelector: (value: T) => TKey): number
+    binaryFindByKey <TKey> (targetKey: TKey, keySelector: (value: T) => TKey, notSetValue): T
+    binaryFindIndexByKey <TKey> (targetKey: TKey, keySelector: (value: T) => TKey): number
+    binaryFindInsertionIndexByKey <TKey> (targetKey: TKey, keySelector: (value: T) => TKey): number
     clear (): List<T>
     push (...values: T[]): List<T>
     pop (): List<T>

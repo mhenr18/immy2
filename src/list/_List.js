@@ -20,6 +20,8 @@ import growPatch from './growPatch'
 import splicePatch from './splicePatch'
 import deleteManySparsePatch from './deleteManySparsePatch'
 
+const identitySelector = (x) => x
+
 // we cache the temporary data structures used in order to save memory.
 // these caches are implemented as pools to ensure that all methods
 // are re-entrant  (when a method is using something, it will remove
@@ -116,6 +118,148 @@ export default class _List {
       return this.push(value)
     } else {
       return this._withPatch(insertPatch, index, value, null)
+    }
+  }
+
+  // assumes that the list is already sorted (or empty is OK), and inserts the value into
+  // the appropriate place using a binary search to find the insertion point. the keySelector
+  // can be used when the list is holding complex object which are sorted by a particular key.
+  insertSorted (value, keySelector) {
+    if (keySelector === undefined) {
+      keySelector = identitySelector
+    }
+
+    const valueKey = keySelector(value)
+    const insertionIndex = this.binaryFindInsertionIndexByKey(valueKey, keySelector)
+
+    return this.insert(insertionIndex, value)
+  }
+
+  indexOfSorted (value, keySelector) {
+    if (keySelector === undefined) {
+      keySelector = identitySelector
+    }
+
+    const valueKey = keySelector(value)
+    return this.binaryFindIndexByKey(valueKey, keySelector)
+  }
+
+  binaryFindByKey (targetKey, keySelector, notSetValue) {
+    const index = this.binaryFindIndexByKey(targetKey, keySelector)
+
+    if (index < 0) {
+      return notSetValue
+    } else {
+      return this.get(index)
+    }
+  }
+
+  // uses binary search to find the index of the desired value, assuming the list is sorted.
+  // the keySelector is used to map values into their ordered key, which needs to be comparable
+  // using the < operator.
+  binaryFindIndexByKey (targetKey, keySelector) {
+    if (keySelector === undefined) {
+      keySelector = identitySelector
+    }
+
+    const comparisonPred = (value) => {
+      const valueKey = keySelector(value)
+
+      if (valueKey < targetKey) {
+        return -1
+      } else if (targetKey < valueKey) {
+        return 1
+      } else {
+        return 0
+      }
+    }
+
+    let minIndex = 0
+    let maxIndex = this.size - 1
+    let currentIndex
+    let currentElement
+
+    while (minIndex <= maxIndex) {
+      currentIndex = (minIndex + maxIndex) / 2 | 0
+      currentElement = this.get(currentIndex)
+
+      let res = comparisonPred(currentElement)
+
+      if (res < 0) {
+        minIndex = currentIndex + 1
+      } else if (res > 0) {
+        maxIndex = currentIndex - 1
+      } else {
+        // make sure that we return the index of the value that's at the end
+        // of the sequence
+        while (currentIndex < this.size - 1 && comparisonPred(this.get(currentIndex + 1)) == 0) {
+          ++currentIndex
+        }
+
+        return currentIndex
+      }
+    }
+
+    return -1
+  }
+
+  // same as binaryFindIndex, except this never returns -1. Instead, it returns the index
+  // that you should insert the target value 
+  binaryFindInsertionIndexByKey (targetKey, keySelector) {
+    if (keySelector === undefined) {
+      keySelector = identitySelector
+    }
+
+    const comparisonPred = (value) => {
+      const valueKey = keySelector(value)
+
+      if (valueKey < targetKey) {
+        return -1
+      } else if (targetKey < valueKey) {
+        return 1
+      } else {
+        return 0
+      }
+    }
+
+    if (this.size === 0) {
+      return 0
+    }
+
+    let minIndex = 0
+    let maxIndex = this.size - 1
+    let currentIndex
+    let currentElement
+
+    while (minIndex <= maxIndex) {
+      currentIndex = (minIndex + maxIndex) / 2 | 0
+      currentElement = this.get(currentIndex)
+
+      let res = comparisonPred(currentElement)
+
+      if (res < 0) {
+        minIndex = currentIndex + 1
+      } else if (res > 0) {
+        maxIndex = currentIndex - 1
+      } else {
+        // found an identical value, go to the end of the sequence and then
+        // return the index that's one after that
+        while (currentIndex < this.size - 1 && comparisonPred(this.get(currentIndex + 1)) == 0) {
+          ++currentIndex
+        }
+
+        return currentIndex + 1
+      }
+    }
+
+    var res = comparisonPred(this.get(currentIndex))
+    if (res > 0) {
+      // need to insert a value that will be before the current one, so use its
+      // index
+      return currentIndex
+    } else {
+      // we want to insert after this value
+      return currentIndex + 1
     }
   }
 
