@@ -340,6 +340,17 @@ export default class _List {
     return this.toArray()
   }
 
+  find (predicate, thisVal, notSetValue) {
+    for (let i = 0; i < this.size; ++i) {
+      const value = this.get(i)
+      if (predicate.call(thisVal, value, i, this)) {
+        return value
+      }
+    }
+
+    return notSetValue
+  }
+
   // always returns a new disjoint List instance that cannot be efficiently compared
   // to the original instance
   map (mapper, thisVal) {
