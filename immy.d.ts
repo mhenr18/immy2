@@ -12,6 +12,8 @@ declare module 'immy' {
     pop? (oldValue: T): void
   }
 
+  export type ImmyList<T> = List<T>
+
   export interface List<T> {
     readonly size: number
     readonly root: {}
