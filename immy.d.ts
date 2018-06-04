@@ -2,6 +2,7 @@
 declare module 'immy' {
   
   export function List<T>(): List<T>
+  export function ImmyList<T>(): List<T>
 
   export interface ListObserver<T> {
     insert (index: number, newValue: T): void
@@ -96,6 +97,7 @@ declare module 'immy' {
   }
 
   export function Map<K, V>(): ImmyMap<K, V>
+  export function ImmyMap<K, V>(): ImmyMap<K, V>
 
   export interface ImmyMapObserver<K, V> {
     insert (key: K, newValue: V): void
