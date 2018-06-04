@@ -94,4 +94,30 @@ declare module 'immy' {
   export type ListCombiner <TPrimary, TSecondary, TCombined> = {
     (primary: List<TPrimary>, secondary: List<TSecondary>): List<TCombined>
   }
+
+  export function Map<K, V>(): ImmyMap<K, V>
+
+  export interface ImmyMapObserver<K, V> {
+    insert (key: K, newValue: V): void
+    delete (key: K, oldValue: V): void
+
+    set? (key: K, oldValue: V, newValue: V): void
+  }
+
+  export interface ImmyMap<K, V> {
+    readonly size: number
+    readonly root: {}
+
+    clear (): ImmyMap<K, V>
+    set (key: K, value: V): ImmyMap<K, V>
+    get (key): V  
+    has (key): boolean
+    delete (key): ImmyMap<K, V>
+    toMap (): Map<K, V>
+    toJS (): Map<K, V>
+    [Symbol.iterator] (): IterableIterator<[K, V]>
+    observeChangesFor (otherMap: ImmyMap<K, V>, observer: ImmyMapObserver<K, V>): boolean  
+    toString (): string
+    inspect (): string
+  }
 }
