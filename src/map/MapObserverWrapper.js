@@ -71,7 +71,7 @@ export default class MapObserverWrapper {
     if (this.observer.insertMany) {
       this.active = r(this.observer.insertMany(newKeysAndValues))
     } else {
-      for (let [key, value] of backing) {
+      for (let [key, value] of newKeysAndValues) {
         if (!this.active) {
           break
         }
