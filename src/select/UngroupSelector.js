@@ -53,6 +53,9 @@ export default class UngroupSelector {
           },
           delete: (i, _) => {
             oldUngroupedList = oldUngroupedList.delete(offset + i)
+          },
+          set: (i, _, v) => {
+            oldUngroupedList = oldUngroupedList.set(offset + i, this.ungrouper(v, key))
           }
         })
 

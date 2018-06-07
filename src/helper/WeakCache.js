@@ -11,7 +11,7 @@ export default class WeakCache {
     } else {
       this.cache.set(key, newValue)
     }
-
+    
     if (oldValue == null && nullValueHandler != null) {
       return nullValueHandler()
     }

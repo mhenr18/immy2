@@ -4,16 +4,17 @@ import _Map from "../map/_Map";
 import { emptyMapInstance } from "../map/_EmptyMap";
 import FilterSelector from "./FilterSelector";
 import MapSelector from './MapSelector'
-import GroupBySelector from "./GroupBy";
+import GroupBySelector from "./GroupBySelector";
 import ToMapSelector from "./ToMapSelector";
 import OrderBySelector from "./OrderBySelector";
 import UngroupSelector from "./UngroupSelector";
+import JoinSelector from "./JoinSelector";
 
 function typeCheck (x, typeName) {
   if (typeName === 'list') {
     return x instanceof _List || x === emptyListInstance
   } else if (typeName === 'map') {
-    return x instanceof _Mapp || x === emptyMapInstance
+    return x instanceof _Map || x === emptyMapInstance
   } else {
     throw new Error('unknown typeName: ' + typeName)
   }
@@ -34,15 +35,25 @@ class SelectionPipeline {
         throw new Error('not enough arguments for the selector - expected ' + self.accepts.join(', '))
       }
 
-      for (let i = 0; i < arguments.length; ++i) {
+      for (let i = 0; i < self.accepts.length; ++i) {
         if (!typeCheck(arguments[i], self.accepts[i])) {
           throw new Error('incorrect argument types for the selector - expected ' + self.accepts.join(', '))
         }
       }
 
+      let nextArg = 1
       let output = arguments[0]
       for (let s of self.selectors) {
-        output = s.select(output)
+        if (s.numArgs != null) {
+          let args = []
+          for (let i = 0; i < s.numArgs; ++i) {
+            args.push(arguments[nextArg++])
+          }
+
+          output = s.select(output, args)
+        } else {
+          output = s.select(output)
+        }
       }
 
       return output
@@ -61,8 +72,8 @@ class SelectionPipeline {
         return new SelectionPipeline([ ...this.selectors, new OrderBySelector(orderSelector) ], this.accepts, 'list').func()
       }
 
-      f.groupBy = (grouper) => {
-        return new SelectionPipeline([ ...this.selectors, new GroupBySelector(grouper) ], this.accepts, 'map').func()
+      f.groupBy = (grouper, valueSelector) => {
+        return new SelectionPipeline([ ...this.selectors, new GroupBySelector(grouper, valueSelector) ], this.accepts, 'map').func()
       }
 
       f.toMap = () => {
@@ -73,6 +84,22 @@ class SelectionPipeline {
     if (this.emits === 'map') {
       f.ungroup = (ungrouper) => {
         return new SelectionPipeline([ ...this.selectors, new UngroupSelector(ungrouper) ], this.accepts, 'list').func()
+      }
+
+      f.join = (secondarySelector, joiner) => {
+        if (secondarySelector.__pipeline == null) {
+          throw new Error('.join() expects a secondary selector created by select()')
+        }
+
+        if (secondarySelector.__pipeline.emits !== 'map') {
+          throw new Error('the secondary selector must emit a map')
+        }
+
+        return new SelectionPipeline(
+          [ ...this.selectors, new JoinSelector(secondarySelector, joiner) ],
+          [ ...this.accepts, ...secondarySelector.__pipeline.accepts ],
+          'map'
+        ).func()
       }
     }
 
@@ -86,7 +113,7 @@ export function fromList () {
 }
 
 export function fromMap () {
-
+  return new SelectionPipeline([], ['map'], 'map').func()
 }
 
 export function from (selector) {

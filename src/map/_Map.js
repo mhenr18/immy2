@@ -108,6 +108,10 @@ export default class _Map {
     }
   }
 
+  update (key, func) {
+    return this.set(key, func(this.get(key)))
+  }
+
   toArray () {
     throw new Error('not done yet')
   }

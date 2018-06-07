@@ -3,8 +3,13 @@ import ImmyMap from '../map'
 import ImmyList from '../list'
 
 export default class GroupBySelector {
-  constructor (grouper) {
+  constructor (grouper, valueSelector) {
+    if (valueSelector == null) {
+      valueSelector = x => x
+    }
+
     this.grouper = grouper
+    this.valueSelector = valueSelector
     this._cache = new WeakCache()
   }
 
@@ -19,9 +24,9 @@ export default class GroupBySelector {
         const groupKey = this.grouper(x)
 
         if (oldGrouped.has(groupKey)) {
-          oldGrouped = oldGrouped.set(groupKey, oldGrouped.get(groupKey).push(x))
+          oldGrouped = oldGrouped.set(groupKey, oldGrouped.get(groupKey).push(this.valueSelector(x)))
         } else {
-          oldGrouped = oldGrouped.set(groupKey, ImmyList([ x ]))
+          oldGrouped = oldGrouped.set(groupKey, ImmyList([ this.valueSelector(x) ]))
         }
       },
       delete: (i, x) => {
@@ -32,7 +37,7 @@ export default class GroupBySelector {
           throw new Error('expected to find a group')
         }
 
-        let index = group.indexOf(x)
+        let index = group.indexOf(this.valueSelector(x))
         group = group.delete(index)
 
         if (group.size === 0) {

@@ -74,6 +74,10 @@ export default class _List {
     } else if (index === this.size) {
       return this.push(value)
     } else if (index < this.size) {
+      if (this.get(index) === value) {
+        return this
+      }
+      
       return this._withPatch(setOnePatch, index, this._getBacking()[index], value)
     } else {
       return this.setSize(index + 1).set(index, value)
