@@ -1,6 +1,9 @@
 
 declare module 'immy' {
   
+  // TODO: improve these typings
+  export var select: any
+
   export function List<T>(): List<T>
   export function ImmyList<T>(): List<T>
 
