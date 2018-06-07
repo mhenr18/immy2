@@ -144,6 +144,17 @@ export default class _List {
     return this.binaryFindIndexByKey(valueKey, keySelector)
   }
 
+  indexOf (value) {
+    const backing = this._getBacking()
+    for (let i = 0; i < backing.length; ++i) {
+      if (backing[i] === value) {
+        return i
+      }
+    }
+
+    return -1
+  }
+
   binaryFindByKey (targetKey, keySelector, notSetValue) {
     const index = this.binaryFindIndexByKey(targetKey, keySelector)
 
