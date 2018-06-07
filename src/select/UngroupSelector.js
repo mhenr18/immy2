@@ -23,37 +23,49 @@ export default class UngroupSelector {
       oldIndexOffsetMap: new Map()
     }))
 
-    let setObserver = {
-      insert: (_, value) => {
-
-      },
-      delete: (_, value) => {
-
-      }
-    }
-
     oldSrcMap.observeChangesFor(srcMap, {
       insert: (key, group) => {
         let groupIndexOffset = oldUngroupedList.size
         oldIndexOffsetMap.set(key, groupIndexOffset)
 
         for (let v of group) {
-          oldUngroupedList = oldUngroupedList.push(v)
+          oldUngroupedList = oldUngroupedList.push(this.ungrouper(v, key))
         }
       },
       delete: (key, group) => {
         let offset = oldIndexOffsetMap.get(key)
-        let delta = group.size
+        let delta = -group.size
         oldUngroupedList = oldUngroupedList.splice(offset, group.size)
 
-        for (let [key, value] of oldIndexOffsetMap) {
+        oldIndexOffsetMap.delete(key)
+
+        for (let [k, value] of oldIndexOffsetMap) {
           if (value > offset) {
-            oldIndexOffsetMap.set(key, value - delta)
+            oldIndexOffsetMap.set(k, value + delta)
           }
         }
       },
       set: (key, oldGroup, newGroup) => {
+        const offset = oldIndexOffsetMap.get(key)
+        oldGroup.observeChangesFor(newGroup, {
+          insert: (i, v) => {
+            oldUngroupedList = oldUngroupedList.insert(offset + i, this.ungrouper(v, key))
+          },
+          delete: (i, _) => {
+            oldUngroupedList = oldUngroupedList.delete(offset + i)
+          }
+        })
 
+        if (newGroup.size === 0) {
+          oldIndexOffsetMap.delete(key)
+        }
+
+        let delta = newGroup.size - oldGroup.size
+        for (let [k, value] of oldIndexOffsetMap) {
+          if (value > offset) {
+            oldIndexOffsetMap.set(k, value + delta)
+          }
+        }
       }
     })
 
