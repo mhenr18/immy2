@@ -30,27 +30,15 @@ class SelectionPipeline {
   func () {
     const self = this
 
-    const f = function (/* arguments */) {
-      if (arguments.length < self.accepts.length) {
-        throw new Error('not enough arguments for the selector - expected ' + self.accepts.join(', '))
+    const f = function (originalInput) {
+      if (!typeCheck(originalInput, self.accepts)) {
+        throw new Error('incorrect argument type for the selector - expected ' + self.accepts)
       }
 
-      for (let i = 0; i < self.accepts.length; ++i) {
-        if (!typeCheck(arguments[i], self.accepts[i])) {
-          throw new Error('incorrect argument types for the selector - expected ' + self.accepts.join(', '))
-        }
-      }
-
-      let nextArg = 1
       let output = arguments[0]
       for (let s of self.selectors) {
-        if (s.numArgs != null) {
-          let args = []
-          for (let i = 0; i < s.numArgs; ++i) {
-            args.push(arguments[nextArg++])
-          }
-
-          output = s.select(output, args)
+        if (s.needsOriginalInput) {
+          output = s.select(output, arguments[0])
         } else {
           output = s.select(output)
         }
@@ -95,9 +83,13 @@ class SelectionPipeline {
           throw new Error('the secondary selector must emit a map')
         }
 
+        if (secondarySelector.__pipeline.accepts !== this.accepts) {
+          throw new Error('the secondary selector must accept the same input')
+        }
+
         return new SelectionPipeline(
           [ ...this.selectors, new JoinSelector(secondarySelector, joiner) ],
-          [ ...this.accepts, ...secondarySelector.__pipeline.accepts ],
+          this.accepts,
           'map'
         ).func()
       }
@@ -109,11 +101,11 @@ class SelectionPipeline {
 }
 
 export function fromList () {
-  return new SelectionPipeline([], ['list'], 'list').func()
+  return new SelectionPipeline([], 'list', 'list').func()
 }
 
 export function fromMap () {
-  return new SelectionPipeline([], ['map'], 'map').func()
+  return new SelectionPipeline([], 'map', 'map').func()
 }
 
 export function from (selector) {

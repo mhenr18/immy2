@@ -7,13 +7,13 @@ export default class JoinSelector {
   constructor (secondarySelector, joiner) {
     this.secondarySelector = secondarySelector
     this.joiner = joiner
-    this.numArgs = this.secondarySelector.__pipeline.accepts.length
+    this.needsOriginalInput = true
     this._cache = new WeakMultiCache()
     this._resolveManyCache = new WeakCache()
   }
 
-  select (srcMap, secondaryArgs) {
-    const secondaryMap = this.secondarySelector.apply(null, secondaryArgs)
+  select (srcMap, originalInput) {
+    const secondaryMap = this.secondarySelector(originalInput)
     if (srcMap.size === 0) {
       return ImmyMap()
     }

@@ -101,7 +101,7 @@ let componentsByEntityCode = Immy.Map(new Map([
 ]))
 
 
-let resolvedA = resolvedWalls(componentsByEntityCode, componentsByEntityCode, componentsByEntityCode, componentsByEntityCode)
+let resolvedA = resolvedWalls(componentsByEntityCode)
 
 function logResolvedWalls (resolvedWalls) {
   for (let resolvedWall of resolvedWalls) {
@@ -118,7 +118,7 @@ console.log()
 
 let componentsByEntityCodeB = componentsByEntityCode.update('ent_4', components => components.set(3, { code: 'cmp_r', type: 'cutout', target: 'cmp_b' }))
 
-let resolvedB = resolvedWalls(componentsByEntityCodeB, componentsByEntityCodeB, componentsByEntityCodeB, componentsByEntityCodeB)
+let resolvedB = resolvedWalls(componentsByEntityCodeB)
 
 console.log()
 console.log('resolvedB')
