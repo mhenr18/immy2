@@ -4,8 +4,8 @@ declare module 'immy' {
   // TODO: improve these typings
   export var select: any
 
-  export function List<T>(): List<T>
-  export function ImmyList<T>(): List<T>
+  export function List<T>(valuesArr?: T[], noCopy?: boolean): List<T>
+  export function ImmyList<T>(valuesArr?: T[], noCopy?: boolean): List<T>
 
   export interface ListObserver<T> {
     insert (index: number, newValue: T): void
