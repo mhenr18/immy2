@@ -3,6 +3,9 @@ import ImmyMap from '../map'
 import ImmyList from '../list'
 import WeakCache from '../helper/WeakCache'
 
+// note - when using resolveMany the resulting diffs will include intermediate values that aren't
+// relevant - you need to be prepared to deal with that in the diff
+
 export default class JoinSelector {
   constructor (secondarySelector, joiner) {
     this.secondarySelector = secondarySelector
@@ -67,10 +70,13 @@ export default class JoinSelector {
         primariesNeedingSelection.delete(key)
 
         // if we're deleting a primary, we need to clean up our secondary mapping
-        for (let secondary of secondariesByPrimary.get(primary)) {
-          primaryBySecondary.delete(secondary)
+        let secondaryMapping = secondariesByPrimary.get(key)
+        if (secondaryMapping != null) {
+          for (let secondary of secondaryMapping) {
+            primaryBySecondary.delete(secondary)
+          }
         }
-        secondariesByPrimary.delete(primary)
+        secondariesByPrimary.delete(key)
       }
     })
 

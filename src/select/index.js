@@ -9,6 +9,8 @@ import ToMapSelector from "./ToMapSelector";
 import OrderBySelector from "./OrderBySelector";
 import UngroupSelector from "./UngroupSelector";
 import JoinSelector from "./JoinSelector";
+import ListTracer from './ListTracer'
+import MapTracer from './MapTracer'
 
 function typeCheck (x, typeName) {
   if (typeName === 'list') {
@@ -67,6 +69,10 @@ class SelectionPipeline {
       f.toMap = () => {
         return new SelectionPipeline([ ...this.selectors, new ToMapSelector() ], this.accepts, 'map').func()
       }
+
+      f.trace = (name) => {
+        return new SelectionPipeline([ ...this.selectors, new ListTracer(name) ], this.accepts, this.emits).func() 
+      }
     }
 
     if (this.emits === 'map') {
@@ -92,6 +98,10 @@ class SelectionPipeline {
           this.accepts,
           'map'
         ).func()
+      }
+
+      f.trace = (name) => {
+        return new SelectionPipeline([ ...this.selectors, new MapTracer(name) ], this.accepts, this.emits).func() 
       }
     }
 
