@@ -13,6 +13,7 @@ declare module 'immy' {
 
     push? (newValue: T): void
     pop? (oldValue: T): void
+    set? (index: number, oldValue: T, newValue: T): void
   }
 
   export type ImmyList<T> = List<T>
