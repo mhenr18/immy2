@@ -8,6 +8,7 @@ import GroupBySelector from "./GroupBySelector";
 import ToMapSelector from "./ToMapSelector";
 import OrderBySelector from "./OrderBySelector";
 import UngroupSelector from "./UngroupSelector";
+import KeysSelector from "./KeysSelector";
 import JoinSelector from "./JoinSelector";
 import ListTracer from './ListTracer'
 import MapTracer from './MapTracer'
@@ -78,6 +79,10 @@ class SelectionPipeline {
     if (this.emits === 'map') {
       f.ungroup = (ungrouper) => {
         return new SelectionPipeline([ ...this.selectors, new UngroupSelector(ungrouper) ], this.accepts, 'list').func()
+      }
+
+      f.keys = () => {
+        return new SelectionPipeline([ ...this.selectors, new KeysSelector() ], this.accepts, 'list').func()
       }
 
       f.join = (secondarySelector, joiner) => {
