@@ -1,5 +1,6 @@
 import WeakCache from '../helper/WeakCache'
 import ImmyList from '../list'
+import { compareKeys } from '../util'
 
 export default class OrderBySelector {
   constructor (orderSelector) {
@@ -27,13 +28,7 @@ export default class OrderBySelector {
         const a = this.orderSelector(aValue)
         const b = this.orderSelector(bValue)
 
-        if (a < b) {
-          return -1
-        } else if (b < a) {
-          return 1
-        } else {
-          return 0
-        }
+        return compareKeys(a, b)
       })
 
       oldOrderedList = ImmyList(arr, true)

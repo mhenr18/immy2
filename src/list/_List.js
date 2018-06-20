@@ -1,5 +1,5 @@
 import { emptyListInstance } from './_EmptyList'
-import { formatObj } from '../util'
+import { formatObj, compareKeys } from '../util'
 import ListObserverWrapper from './ListObserverWrapper'
 import _MutableStack from '../mutable/_MutableStack'
 import _MutableQueue from '../mutable/_MutableQueue'
@@ -169,26 +169,9 @@ export default class _List {
     }
   }
 
-  // uses binary search to find the index of the desired value, assuming the list is sorted.
-  // the keySelector is used to map values into their ordered key, which needs to be comparable
-  // using the < operator.
-  binaryFindIndexByKey (targetKey, keySelector) {
-    if (keySelector === undefined) {
-      keySelector = identitySelector
-    }
-
-    const comparisonPred = (value) => {
-      const valueKey = keySelector(value)
-
-      if (valueKey < targetKey) {
-        return -1
-      } else if (targetKey < valueKey) {
-        return 1
-      } else {
-        return 0
-      }
-    }
-
+  // the comparator is *always* called with the target as the first argument.
+  // (this means that it's possible to compare disjoint types)
+  binaryFindIndex (target, comparator) {
     let minIndex = 0
     let maxIndex = this.size - 1
     let currentIndex
@@ -198,16 +181,16 @@ export default class _List {
       currentIndex = (minIndex + maxIndex) / 2 | 0
       currentElement = this.get(currentIndex)
 
-      let res = comparisonPred(currentElement)
+      let res = comparator(target, currentElement)
 
-      if (res < 0) {
+      if (res > 0) {
         minIndex = currentIndex + 1
-      } else if (res > 0) {
+      } else if (res < 0) {
         maxIndex = currentIndex - 1
       } else {
         // make sure that we return the index of the value that's at the end
         // of the sequence
-        while (currentIndex < this.size - 1 && comparisonPred(this.get(currentIndex + 1)) == 0) {
+        while (currentIndex < this.size - 1 && comparator(target, this.get(currentIndex + 1)) == 0) {
           ++currentIndex
         }
 
@@ -218,24 +201,25 @@ export default class _List {
     return -1
   }
 
+  // uses binary search to find the index of the desired value, assuming the list is sorted.
+  // the keySelector is used to map values into their ordered key, which needs to be comparable
+  // using the < operator.
+  binaryFindIndexByKey (targetKey, keySelector) {
+    if (keySelector === undefined) {
+      keySelector = identitySelector
+    }
+
+    return this.binaryFindIndex(targetKey, (targetKey, value) => compareKeys(targetKey, keySelector(value)))
+  }
+
   // same as binaryFindIndex, except this never returns -1. Instead, it returns the index
-  // that you should insert the target value 
+  // that you should insert the target value so that the list stays sorted.
   binaryFindInsertionIndexByKey (targetKey, keySelector) {
     if (keySelector === undefined) {
       keySelector = identitySelector
     }
 
-    const comparisonPred = (value) => {
-      const valueKey = keySelector(value)
-
-      if (valueKey < targetKey) {
-        return -1
-      } else if (targetKey < valueKey) {
-        return 1
-      } else {
-        return 0
-      }
-    }
+    const comparisonPred = (value) => compareKeys(keySelector(value), targetKey)
 
     if (this.size === 0) {
       return 0
