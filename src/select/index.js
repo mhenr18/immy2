@@ -12,6 +12,7 @@ import KeysSelector from "./KeysSelector";
 import JoinSelector from "./JoinSelector";
 import ListTracer from './ListTracer'
 import MapTracer from './MapTracer'
+import SortSelector from "./SortSelector";
 
 function typeCheck (x, typeName) {
   if (typeName === 'list') {
@@ -61,6 +62,10 @@ class SelectionPipeline {
 
       f.orderBy = (orderSelector) => {
         return new SelectionPipeline([ ...this.selectors, new OrderBySelector(orderSelector) ], this.accepts, 'list').func()
+      }
+
+      f.sort = (comparator) => {
+        return new SelectionPipeline([ ...this.selectors, new SortSelector(comparator) ], this.accepts, 'list').func()
       }
 
       f.groupBy = (grouper, valueSelector) => {
