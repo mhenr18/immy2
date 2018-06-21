@@ -47,6 +47,7 @@ declare module 'immy' {
     [Symbol.iterator](): IterableIterator<T>
     forEach (sideEffect: (value?: T, index?: number, list?: List<T>) => any, thisVal?: any): number
     map <TMapped> (mapper: (value?: T, index?: number, list?: List<T>) => TMapped, thisVal?: any): List<TMapped>
+    pureMap <TMapped> (mapper: (value?: T) => TMapped): List<TMapped>
     mapInPlace <TMapped> (mapper: (value?: T, index?: number, list?: List<T>) => TMapped, thisVal?: any): List<TMapped>
     filter (predicate: (value?: T, index?: number, list?: List<T>) => boolean, thisVal?: any): List<T>
     filterInPlace (predicate: (value?: T, index?: number, list?: List<T>) => boolean, thisVal?: any): List<T>
