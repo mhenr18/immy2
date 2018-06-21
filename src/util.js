@@ -28,8 +28,6 @@ export function compareKeys (a, b) {
       throw new Error('when using array keys, both args must be arrays and both must have the same length')
     }
 
-    console.log('comparing arrays')
-
     for (let i = 0; i < a.length; ++i) {
       if (a[i] < b[i]) {
         return -1
