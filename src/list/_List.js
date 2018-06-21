@@ -533,6 +533,17 @@ export default class _List {
     return new _List(newBacking)
   }
 
+  // same as map, but only supports a mapper that's f(x) rather than f(x, i, this).
+  pureMap (mapper) {
+    let newBacking = new Array(this.size)
+
+    for (let i = 0; i < this.size; ++i) {
+      newBacking[i] = mapper(this.get(i))
+    }
+
+    return new _List(newBacking)
+  }
+
   // identical to map() in terms of arguments and immutability semantics, however
   // mapInPlace performs the mapping operation as a series of set() operations on
   // this list so that the returned list will be efficiently comparable to the

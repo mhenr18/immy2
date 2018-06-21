@@ -115,6 +115,10 @@ class _EmptyList {
     return this // if this is empty, then the mapped list would also be empty
   }
 
+  pureMap (mapped) {
+    return this // if this is empty, then the mapped list would also be empty
+  }
+
   mapInPlace (mapper) {
     return this // if this is empty, then the mapped list would also be empty
   }
