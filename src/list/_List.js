@@ -212,15 +212,9 @@ export default class _List {
     return this.binaryFindIndex(targetKey, (targetKey, value) => compareKeys(targetKey, keySelector(value)))
   }
 
-  // same as binaryFindIndex, except this never returns -1. Instead, it returns the index
-  // that you should insert the target value so that the list stays sorted.
-  binaryFindInsertionIndexByKey (targetKey, keySelector) {
-    if (keySelector === undefined) {
-      keySelector = identitySelector
-    }
-
-    const comparisonPred = (value) => compareKeys(keySelector(value), targetKey)
-
+  // the comparator is *always* called with the target as the first argument.
+  // (this means that it's possible to compare disjoint types)
+  binaryFindInsertionIndex (target, comparator) {
     if (this.size === 0) {
       return 0
     }
@@ -234,16 +228,16 @@ export default class _List {
       currentIndex = (minIndex + maxIndex) / 2 | 0
       currentElement = this.get(currentIndex)
 
-      let res = comparisonPred(currentElement)
+      let res = comparator(target, currentElement)
 
-      if (res < 0) {
+      if (res > 0) {
         minIndex = currentIndex + 1
-      } else if (res > 0) {
+      } else if (res < 0) {
         maxIndex = currentIndex - 1
       } else {
         // found an identical value, go to the end of the sequence and then
         // return the index that's one after that
-        while (currentIndex < this.size - 1 && comparisonPred(this.get(currentIndex + 1)) == 0) {
+        while (currentIndex < this.size - 1 && comparator(target, this.get(currentIndex + 1)) == 0) {
           ++currentIndex
         }
 
@@ -251,8 +245,8 @@ export default class _List {
       }
     }
 
-    var res = comparisonPred(this.get(currentIndex))
-    if (res > 0) {
+    var res = comparator(target, this.get(currentIndex))
+    if (res < 0) {
       // need to insert a value that will be before the current one, so use its
       // index
       return currentIndex
@@ -260,6 +254,16 @@ export default class _List {
       // we want to insert after this value
       return currentIndex + 1
     }
+  }
+
+  // same as binaryFindIndex, except this never returns -1. Instead, it returns the index
+  // that you should insert the target value so that the list stays sorted.
+  binaryFindInsertionIndexByKey (targetKey, keySelector) {
+    if (keySelector === undefined) {
+      keySelector = identitySelector
+    }
+
+    return this.binaryFindInsertionIndex(targetKey, (targetKey, value) => compareKeys(targetKey, keySelector(value)))
   }
 
   clear () {

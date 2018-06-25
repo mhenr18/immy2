@@ -41,6 +41,10 @@ class _EmptyList {
     return -1
   }
 
+  binaryFindInsertionIndex (target, comparator) {
+    return 0
+  }
+
   binaryFindInsertionIndexByKey (targetKey, keySelector) {
     return 0
   }
