@@ -5,6 +5,10 @@
 // the exceptions to this are clear and pushMany, which exist to enable the
 // disjoint list "change tracking" where we clear the old data and add the
 // new data. pushMany is also called during regular usage, if it is available.
+//
+// note that push/pop/shift/unshift are called with the index as the second
+// argument, rather than the first. (for API compatibility reasons, originally
+// these methods didn't have the index given to them)
 
 // returns true unless x === false
 function r (x) {
@@ -35,7 +39,7 @@ export default class ListObserverWrapper {
     }
 
     if (this.observer.push) {
-      this.active = r(this.observer.push(value))
+      this.active = r(this.observer.push(value, index))
     } else {
       this.active = r(this.observer.insert(index, value))
     }
@@ -47,7 +51,7 @@ export default class ListObserverWrapper {
     }
 
     if (this.observer.pop) {
-      this.active = r(this.observer.pop(value))
+      this.active = r(this.observer.pop(value, index))
     } else {
       this.active = r(this.observer.delete(index, value))
     }
@@ -59,7 +63,7 @@ export default class ListObserverWrapper {
     }
 
     if (this.observer.unshift) {
-      this.active = r(this.observer.unshift(value))
+      this.active = r(this.observer.unshift(value, index))
     } else {
       this.active = r(this.observer.insert(0, value))
     }
@@ -71,7 +75,7 @@ export default class ListObserverWrapper {
     }
 
     if (this.observer.shift) {
-      this.active = r(this.observer.shift(value))
+      this.active = r(this.observer.shift(value, index))
     } else {
       this.active = r(this.observer.delete(0, value))
     }

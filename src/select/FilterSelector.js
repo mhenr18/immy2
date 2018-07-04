@@ -28,17 +28,20 @@ export default class FilterSelector {
           // prescence requires us to update the translation table. this pass
           // also allows us to find the appropriate insertion point into the
           // filtered list
-          let haveInsertionPoint = false
           let insertionPoint = -1
           for (let i = 0; i < translation.length; ++i) {
             if (translation[i] >= index) {
-              if (!haveInsertionPoint) {
+              if (insertionPoint < 0) {
                 insertionPoint = i
-                haveInsertionPoint = true
               }
 
               translation[i] += 1
             }
+          }
+
+          if (insertionPoint < 0) {
+            // need to insert at the end of the filtered list
+            insertionPoint = translation.length
           }
 
           if (this.predicate(value)) {
@@ -50,13 +53,11 @@ export default class FilterSelector {
         delete: (index, value) => {
           // need to update the translation table, and while we do this we
           // can find the deletion point (if needed)
-          let haveDeletionPoint = false
           let deletionPoint = -1
           for (let i = 0; i < translation.length; ++i) {
             if (translation[i] >= index) {
-              if (!haveDeletionPoint) {
+              if (deletionPoint < 0) {
                 deletionPoint = i
-                haveDeletionPoint = true
               }
 
               translation[i] -= 1
@@ -64,17 +65,21 @@ export default class FilterSelector {
           }
 
           if (this.predicate(value)) {
+            if (deletionPoint < 0) {
+              throw new Error('trying to delete from filtered list but could not find item to delete')
+            }
+
             translation.splice(deletionPoint, 1)
             filteredList = filteredList.delete(deletionPoint)
           }
         },
 
-        push: (value) => {
+        push: (value, index) => {
           if (!this.predicate(value)) {
             return
           }
 
-          translation.push(filteredList.size)
+          translation.push(index)
           filteredList = filteredList.push(value)
         }
       })
