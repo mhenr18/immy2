@@ -13,6 +13,7 @@ import JoinSelector from "./JoinSelector";
 import ListTracer from './ListTracer'
 import MapTracer from './MapTracer'
 import SortSelector from "./SortSelector";
+import FilterByValueSelector from "./FilterByValueSelector";
 
 function typeCheck (x, typeName) {
   if (typeName === 'list') {
@@ -112,6 +113,10 @@ class SelectionPipeline {
 
       f.trace = (name) => {
         return new SelectionPipeline([ ...this.selectors, new MapTracer(name) ], this.accepts, this.emits).func() 
+      }
+
+      f.filterByValue = (predicate) => {
+        return new SelectionPipeline([ ...this.selectors, new FilterByValueSelector(predicate) ], this.accepts, 'map').func()
       }
     }
 

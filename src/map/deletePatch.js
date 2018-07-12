@@ -7,7 +7,7 @@ import { makePatch } from '../util'
 const deletePatch = makePatch({
   name: 'delete',
   apply: (backing, i, x, y) => backing.delete(i),
-  applyWrapper: (i, x, y, wrapper) => wrapper.delete(i),
+  applyWrapper: (i, x, y, wrapper) => wrapper.delete(i, x),
 
   invertName: 'insert',
   invert: (backing, i, x, y) => backing.set(i, x),
