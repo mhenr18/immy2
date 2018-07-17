@@ -14,6 +14,7 @@ import ListTracer from './ListTracer'
 import MapTracer from './MapTracer'
 import SortSelector from "./SortSelector";
 import FilterByValueSelector from "./FilterByValueSelector";
+import FlatMapSelector from "./FlatMapSelector";
 
 function typeCheck (x, typeName) {
   if (typeName === 'list') {
@@ -59,6 +60,14 @@ class SelectionPipeline {
 
       f.map = (mapper) => {
         return new SelectionPipeline([ ...this.selectors, new MapSelector(mapper) ], this.accepts, 'list').func()
+      }
+
+      f.flatMap = (mapper) => {
+        return new SelectionPipeline([ ...this.selectors, new FlatMapSelector(mapper) ], this.accepts, 'list').func()
+      }
+
+      f.flatten = () => {
+        return new SelectionPipeline([ ...this.selectors, new FlatMapSelector(x => x) ], this.accepts, 'list').func()
       }
 
       f.orderBy = (orderSelector) => {

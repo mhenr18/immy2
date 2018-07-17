@@ -30,3 +30,11 @@ export default function List (collection, noCopy) {
     return new _List(backing)
   }
 }
+
+export function isList (x) {
+  if (x == null) {
+    return false
+  }
+
+  return x === emptyListInstance || x instanceof _List
+}
