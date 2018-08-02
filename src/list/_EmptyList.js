@@ -9,6 +9,18 @@ class _EmptyList {
     this.root = {}
   }
 
+  count () {
+    return 0
+  }
+
+  first () {
+    return undefined
+  }
+
+  last () {
+    return undefined
+  }
+
   set (index, value) {
     return new _List([]).set(index, value)
   }

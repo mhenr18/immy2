@@ -22,6 +22,9 @@ declare module 'immy' {
     readonly size: number
     readonly root: {}
 
+    count (): number
+    first (): T
+    last (): T
     set (index: number, value: T): List<T>
     get (index: number): T
     delete (index: number): List<T>

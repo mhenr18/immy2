@@ -55,6 +55,19 @@ export default class _List {
     this._patchTarget = null
   }
 
+  // for compatibility with immutable js
+  count () {
+    return this.size
+  }
+
+  first () {
+    return this.get(0)
+  }
+
+  last () {
+    return this.get(this.size - 1)
+  }
+
   set (index, value) {
     if (index < 0) {
       index = this.size + index // equivalent of this.size - Math.abs(index)
