@@ -1,12 +1,13 @@
 {
   "name": "immy",
-  "version": "1.0.0-indev",
+  "version": "1.0.0-alpha.1",
   "description": "Fast immutable data structures that use change-tracking",
   "main": "dist/immy.js",
   "module": "src/index.js",
   "typings": "immy.d.ts",
   "scripts": {
     "build": "webpack",
+    "prepublish": "webpack",
     "test": "jest",
     "watch": "webpack --watch"
   },
