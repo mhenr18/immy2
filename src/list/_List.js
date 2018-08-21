@@ -189,10 +189,9 @@ export default class _List {
     let maxIndex = this.size - 1
     let currentIndex
     let currentElement
-
-    // our binary searching logic doesn't work for single element lists, handle that case here
-    if (this.size === 1 && comparator(target, this.get(0)) === 0) {
-      return 0
+    
+    if (this.size === 0) {
+      return -1
     }
 
     while (minIndex <= maxIndex) {
@@ -214,6 +213,14 @@ export default class _List {
 
         return currentIndex
       }
+    }
+
+    if (maxIndex >= 0 && maxIndex < this.size && comparator(target, this.get(maxIndex)) === 0) {
+      return maxIndex
+    }
+
+    if (minIndex >= 0 && minIndex < this.size && comparator(target, this.get(minIndex)) === 0) {
+      return minIndex
     }
 
     return -1

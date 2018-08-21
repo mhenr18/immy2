@@ -34,7 +34,7 @@ export function compareKeys (a, b) {
         return -1
       } else if (b[i] < a[i]) {
         return 1
-      } else if (a !== b) {
+      } else if (a[i] !== b[i]) {
         // at this point for well-behaved inputs it might be a valid assumption to assume that the values are equal.
         // however, JS allows you to compare null to a string using less than/greater than, and always returns false
         // regardless of the order.
