@@ -216,7 +216,7 @@ export default class _List {
 
   // uses binary search to find the index of the desired value, assuming the list is sorted.
   // the keySelector is used to map values into their ordered key, which needs to be comparable
-  // using the < operator.
+  // using the < operator and equatable using the === operator
   binaryFindIndexByKey (targetKey, keySelector) {
     if (keySelector === undefined) {
       keySelector = identitySelector
