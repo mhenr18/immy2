@@ -190,6 +190,11 @@ export default class _List {
     let currentIndex
     let currentElement
 
+    // our binary searching logic doesn't work for single element lists, handle that case here
+    if (this.size === 0 && comparator(target, this.get(0)) === 0) {
+      return 0
+    }
+
     while (minIndex <= maxIndex) {
       currentIndex = (minIndex + maxIndex) / 2 | 0
       currentElement = this.get(currentIndex)
@@ -203,7 +208,7 @@ export default class _List {
       } else {
         // make sure that we return the index of the value that's at the end
         // of the sequence
-        while (currentIndex < this.size - 1 && comparator(target, this.get(currentIndex + 1)) == 0) {
+        while (currentIndex < this.size - 1 && comparator(target, this.get(currentIndex + 1)) === 0) {
           ++currentIndex
         }
 
