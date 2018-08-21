@@ -191,7 +191,7 @@ export default class _List {
     let currentElement
 
     // our binary searching logic doesn't work for single element lists, handle that case here
-    if (this.size === 0 && comparator(target, this.get(0)) === 0) {
+    if (this.size === 1 && comparator(target, this.get(0)) === 0) {
       return 0
     }
 
