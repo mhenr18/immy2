@@ -152,6 +152,35 @@ export default class _List {
     return this.insert(insertionIndex, value)
   }
 
+  // updates an existing item that has the same key as the new value. this throws if there isn't
+  // an existing value with the same key
+  updateSorted (value, keySelector) {
+    if (keySelector === undefined) {
+      keySelector = identitySelector
+    }
+
+    const updateIndex = this.indexOfSorted(value, keySelector)
+    if (updateIndex < 0) {
+      throw new Error('unable to update the given value - it is not in the list')
+    }
+
+    return this.set(updateIndex, value)
+  }
+
+  // throws if the value is not in the list
+  deleteSorted (value, keySelector) {
+    if (keySelector === undefined) {
+      keySelector = identitySelector
+    }
+
+    const deletionIndex = this.indexOfSorted(value, keySelector)
+    if (deletionIndex < 0) {
+      throw new Error('unable to delete the given value - it is not in the list')
+    }
+
+    return this.delete(deletionIndex)
+  }
+
   indexOfSorted (value, keySelector) {
     if (keySelector === undefined) {
       keySelector = identitySelector
