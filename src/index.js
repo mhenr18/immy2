@@ -4,6 +4,7 @@ import * as listCombine from './list-combine'
 import * as select from './select'
 
 import ImmyMap from './map'
+import ImmySet from './set'
 
 export {
   ImmyList,
@@ -13,7 +14,10 @@ export {
   select,
 
   ImmyMap,
-  ImmyMap as Map
+  ImmyMap as Map,
+
+  ImmySet,
+  ImmySet as Set
 }
 
 export default {
@@ -24,5 +28,8 @@ export default {
   select,
 
   ImmyMap,
-  Map: ImmyMap
+  Map: ImmyMap,
+
+  ImmySet,
+  Set: ImmySet
 }
