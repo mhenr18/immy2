@@ -164,6 +164,7 @@ declare module 'immy' {
     has (value): boolean
     delete (value): ImmySet<T>
     toSet (): Set<T>
+    toArray(): T[]
     toJS (): Set<T>
     [Symbol.iterator] (): IterableIterator<T>
     observeChangesFor (otherSet: ImmySet<T>, observer: ImmySetObserver<T>): boolean  
