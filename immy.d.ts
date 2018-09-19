@@ -30,6 +30,8 @@ declare module 'immy' {
     delete (index: number): List<T>
     insert (index: number, value: T): List<T>
     insertSorted <TKey> (value: T, keySelector?: (value: T) => TKey): List<T>
+    updateSorted <TKey> (value: T, keySelector?: (value: T) => TKey): List<T>
+    deleteSorted <TKey> (value: T, keySelector?: (value: T) => TKey): List<T>
     indexOfSorted <TKey> (value: T, keySelector?: (value: T) => TKey): number
     binaryFindByKey <TKey> (targetKey: TKey, keySelector?: (value: T) => TKey, notSetValue?: T): T
     binaryFindIndexByKey <TKey> (targetKey: TKey, keySelector?: (value: T) => TKey): number
@@ -129,6 +131,42 @@ declare module 'immy' {
     toJS (): Map<K, V>
     [Symbol.iterator] (): IterableIterator<[K, V]>
     observeChangesFor (otherMap: ImmyMap<K, V>, observer: ImmyMapObserver<K, V>): boolean  
+    toString (): string
+    inspect (): string
+  }
+
+
+
+
+
+
+
+
+  export function Set<T>(): ImmySet<T>
+  export function Set<T>(values: Set<T>): ImmySet<T>
+  export function Set<T>(values: T[]): ImmySet<T>
+  export function ImmySet<T>(): ImmySet<T>
+  export function ImmySet<T>(values: Set<T>): ImmySet<T>
+  export function ImmySet<T>(values: T[]): ImmySet<T>
+
+  export interface ImmySetObserver<T> {
+    insert (newValue: T): void
+    delete (oldValue: T): void
+  }
+
+  export interface ImmySet<T> {
+    readonly size: number
+    readonly root: {}
+    first(): T
+    count(): number
+    clear (): ImmySet<T>
+    add (value): ImmySet<T> 
+    has (value): boolean
+    delete (value): ImmySet<T>
+    toSet (): Set<T>
+    toJS (): Set<T>
+    [Symbol.iterator] (): IterableIterator<T>
+    observeChangesFor (otherSet: ImmySet<T>, observer: ImmySetObserver<T>): boolean  
     toString (): string
     inspect (): string
   }
