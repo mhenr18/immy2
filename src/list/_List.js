@@ -19,6 +19,9 @@ import shiftManyPatch from './shiftManyPatch'
 import growPatch from './growPatch'
 import splicePatch from './splicePatch'
 import deleteManySparsePatch from './deleteManySparsePatch'
+import ImmySet from '../set'
+import ImmyMap from '../set'
+import ImmyList from '.';
 
 const identitySelector = (x) => x
 
@@ -62,6 +65,10 @@ export default class _List {
 
   first () {
     return this.get(0)
+  }
+
+  isEmpty () {
+    return this.size === 0
   }
 
   last () {
@@ -533,6 +540,14 @@ export default class _List {
     }
   }
 
+  toList () {
+    return this
+  }
+
+  toSet () {
+    return ImmySet(new Set(this._getBacking()), true)
+  }
+
   toArray () {
     return this._getBacking().slice()
   }
@@ -592,6 +607,7 @@ export default class _List {
   }
 
   // same as map, but only supports a mapper that's f(x) rather than f(x, i, this).
+  // surprisingly, this can be considerably faster.
   pureMap (mapper) {
     let newBacking = new Array(this.size)
 
@@ -710,6 +726,58 @@ export default class _List {
 
     // and apply them in a single patch (this is O(n))
     return this._withPatch(deleteManySparsePatch, -1, removedIndexes, removedValues)
+  }
+
+  sort (comparator) {
+    return this.sortBy(identitySelector, comparator)
+  }
+
+  sortBy (comparatorValueMapper, comparator) {
+    if (comparatorValueMapper == null) {
+      comparatorValueMapper = identitySelector
+    }
+
+    if (comparator == null) {
+      comparator = compareKeys
+    }
+
+    let arr = this.toArray()
+    arr.sort((a, b) => {
+      const aKey = comparatorValueMapper(a)
+      const bKey = comparatorValueMapper(b)
+
+      return comparator(aKey, bKey)
+    })
+
+    return new _List(arr)
+  }
+
+  flatMap (mapper, thisVal) {
+    let flattened = []
+
+    for (let i = 0; i < this.size; ++i) {
+      const existingValue = this.get(i)
+      const iterable = mapper.call(thisVal, existingValue, i, this)
+
+      for (let v of iterable) {
+        flattened.push(v)
+      }
+    }
+
+    return new _List(flattened)
+  }
+
+  groupBy (grouper, thisVal) {
+    let grouped = new Map()
+
+    for (let i = 0; i < this.size; ++i) {
+      const existingValue = this.get(i)
+      const groupKey = grouper.call(thisVal, existingValue, i, this)
+
+      grouped.set(groupKey, (grouped.get(groupKey) || ImmyList()).push(existingValue))
+    }
+
+    return ImmyMap(grouped, true)
   }
 
   reduce (reducer, initialValue, thisVal) {

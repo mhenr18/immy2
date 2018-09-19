@@ -1,5 +1,7 @@
 import _List from './_List'
 import ListObserverWrapper from './ListObserverWrapper'
+import { emptySetInstance } from '../set/_EmptySet'
+import { emptyMapInstance } from '../map/_EmptyMap'
 
 let emptyListInstance = null
 
@@ -104,12 +106,24 @@ class _EmptyList {
     return list.splice.apply(list, arguments)
   }
 
+  isEmpty () {
+    return true
+  }
+
+  toList () {
+    return this
+  }
+
   toArray () {
     return []
   }
 
   toJS () {
     return this.toArray()
+  }
+
+  toSet () {
+    return emptySetInstance
   }
 
   find (predicate, thisVal, notSetValue) {
@@ -145,6 +159,22 @@ class _EmptyList {
 
   filterInPlace (predicate) {
     return this // nothing to filter out of an empty list
+  }
+
+  sort (comparator) {
+    return this // nothing to sort in an empty list
+  }
+
+  sortBy (comparatorValueMapper, comparator) {
+    return this // nothing to sort in an empty list
+  }
+
+  flatMap (mapper, thisVal) {
+    return this
+  }
+
+  groupBy (grouper, thisVal) {
+    return emptyMapInstance
   }
 
   reduce (reducer, initialValue) {

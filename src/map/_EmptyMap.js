@@ -1,5 +1,7 @@
 import _Map from './_Map'
 import MapObserverWrapper from './MapObserverWrapper'
+import { emptyListInstance } from '../list/_EmptyList'
+import { emptySetInstance } from '../set/_EmptySet'
 
 let emptyMapInstance = null
 
@@ -29,12 +31,32 @@ class _EmptyMap {
     return this
   }
 
+  map (mapper, thisVal) {
+    return this
+  }
+
+  forEach (sideEffect, thisVal) {
+    return 0
+  }
+
+  filter (predicate, thisVal) {
+    return this
+  }
+
+  toList () {
+    return emptyListInstance
+  }
+
+  toSet () {
+    return emptySetInstance
+  }
+
   toArray () {
     return []
   }
 
   toMap () {
-    return new Map()
+    return this
   }
 
   toJS () {

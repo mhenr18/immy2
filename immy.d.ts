@@ -4,8 +4,8 @@ declare module 'immy' {
   // TODO: improve these typings
   export var select: any
 
-  export function List<T>(valuesArr?: T[], noCopy?: boolean): List<T>
-  export function ImmyList<T>(valuesArr?: T[], noCopy?: boolean): List<T>
+  export function List<T>(valuesArr?: T[], noCopy?: boolean): ImmyList<T>
+  export function ImmyList<T>(valuesArr?: T[], noCopy?: boolean): ImmyList<T>
 
   export interface ListObserver<T> {
     insert (index: number, newValue: T): void
@@ -16,47 +16,57 @@ declare module 'immy' {
     set? (index: number, oldValue: T, newValue: T): void
   }
 
-  export type ImmyList<T> = List<T>
-
-  export interface List<T> {
+  export interface ImmyList<T> {
     readonly size: number
     readonly root: {}
 
     count (): number
     first (): T
     last (): T
-    set (index: number, value: T): List<T>
+    isEmpty (): boolean
+    set (index: number, value: T): ImmyList<T>
     get (index: number): T
-    delete (index: number): List<T>
-    insert (index: number, value: T): List<T>
-    insertSorted <TKey> (value: T, keySelector?: (value: T) => TKey): List<T>
-    updateSorted <TKey> (value: T, keySelector?: (value: T) => TKey): List<T>
-    deleteSorted <TKey> (value: T, keySelector?: (value: T) => TKey): List<T>
+    delete (index: number): ImmyList<T>
+    insert (index: number, value: T): ImmyList<T>
+    insertSorted <TKey> (value: T, keySelector?: (value: T) => TKey): ImmyList<T>
+    updateSorted <TKey> (value: T, keySelector?: (value: T) => TKey): ImmyList<T>
+    deleteSorted <TKey> (value: T, keySelector?: (value: T) => TKey): ImmyList<T>
     indexOfSorted <TKey> (value: T, keySelector?: (value: T) => TKey): number
     binaryFindByKey <TKey> (targetKey: TKey, keySelector?: (value: T) => TKey, notSetValue?: T): T
     binaryFindIndexByKey <TKey> (targetKey: TKey, keySelector?: (value: T) => TKey): number
     binaryFindInsertionIndexByKey <TKey> (targetKey: TKey, keySelector?: (value: T) => TKey): number
-    clear (): List<T>
-    push (...values: T[]): List<T>
-    pop (): List<T>
-    popMany (deleteCount: number): List<T>
-    unshift (...values: T[]): List<T>
-    shift (): List<T>
-    shiftMany (deleteCount: number): List<T>
-    setSize (newSize: number): List<T>
-    splice (index: number, removeNum: number, ...values: T[]): List<T>
+    clear (): ImmyList<T>
+    push (...values: T[]): ImmyList<T>
+    pop (): ImmyList<T>
+    popMany (deleteCount: number): ImmyList<T>
+    unshift (...values: T[]): ImmyList<T>
+    shift (): ImmyList<T>
+    shiftMany (deleteCount: number): ImmyList<T>
+    setSize (newSize: number): ImmyList<T>
+    splice (index: number, removeNum: number, ...values: T[]): ImmyList<T>
     toArray (): T[]
+    toList (): ImmyList<T>
     toJS (): T[]
-    find (predicate: (value?: T, index?: number, list?: List<T>) => boolean, thisVal?: any, notSetValue?: T): T
-    findIndex (predicate: (value?: T, index?: number, list?: List<T>) => boolean, thisVal?: any): number
+    toSet (): ImmySet<T>
+    find (predicate: (value?: T, index?: number, list?: ImmyList<T>) => boolean, thisVal?: any, notSetValue?: T): T
+    findIndex (predicate: (value?: T, index?: number, list?: ImmyList<T>) => boolean, thisVal?: any): number
     [Symbol.iterator](): IterableIterator<T>
-    forEach (sideEffect: (value?: T, index?: number, list?: List<T>) => any, thisVal?: any): number
-    map <TMapped> (mapper: (value?: T, index?: number, list?: List<T>) => TMapped, thisVal?: any): List<TMapped>
-    pureMap <TMapped> (mapper: (value?: T) => TMapped): List<TMapped>
-    mapInPlace <TMapped> (mapper: (value?: T, index?: number, list?: List<T>) => TMapped, thisVal?: any): List<TMapped>
-    filter (predicate: (value?: T, index?: number, list?: List<T>) => boolean, thisVal?: any): List<T>
-    filterInPlace (predicate: (value?: T, index?: number, list?: List<T>) => boolean, thisVal?: any): List<T>
-    observeChangesFor (otherList: List<T>, observer: ListObserver<T>): boolean
+    forEach (sideEffect: (value?: T, index?: number, list?: ImmyList<T>) => any, thisVal?: any): number
+    map <TMapped> (mapper: (value?: T, index?: number, list?: ImmyList<T>) => TMapped, thisVal?: any): ImmyList<TMapped>
+    pureMap <TMapped> (mapper: (value?: T) => TMapped): ImmyList<TMapped>
+    mapInPlace <TMapped> (mapper: (value?: T, index?: number, list?: ImmyList<T>) => TMapped, thisVal?: any): ImmyList<TMapped>
+    reduce <TReduction> (
+      reducer: (reduction: TReduction, value?: T, index?: number, list?: ImmyList<T>) => TReduction,
+      initialReduction?: TReduction,
+      thisVal?: any
+    ): TReduction
+    filter (predicate: (value?: T, index?: number, list?: ImmyList<T>) => boolean, thisVal?: any): ImmyList<T>
+    filterInPlace (predicate: (value?: T, index?: number, list?: ImmyList<T>) => boolean, thisVal?: any): ImmyList<T>
+    sort (comparator?: (valueA: C, valueB: C) => number): ImmyList<T>
+    sortBy<C> (comparatorValueMapper: (value: T, key: number, iter: ImmyList<T>) => C, comparator?: (valueA: C, valueB: C) => number): ImmyList<T>
+    flatMap<M> (mapper: (value: T, key: number, iter: ImmyList<T>) => Iterable<M>, thisVal?: any): ImmyList<M>
+    groupBy<G> (grouper: (value: T, key: number, iter: ImmyList<T>) => G, thisVal?: any): ImmyMap<G, ImmyList<T>>
+    observeChangesFor (otherList: ImmyList<T>, observer: ListObserver<T>): boolean
     toString (): string
     inspect (): string
   }
@@ -77,7 +87,7 @@ declare module 'immy' {
   }
 
   export type ListListSelector <TInput, TOutput> = {
-    (list: List<TInput>): List<TOutput>
+    (list: ImmyList<TInput>): ImmyList<TOutput>
 
     map <TMapped> (mapper: (value: TOutput) => TMapped): ListListSelector<TInput, TMapped>
     filter (predicate: (value: TOutput) => boolean): ListListSelector<TInput, TOutput>
@@ -94,7 +104,7 @@ declare module 'immy' {
   }
 
   export type ListValueSelector <TInput, TValue> = {
-    (list: List<TInput>): TValue
+    (list: ImmyList<TInput>): TValue
   }
 
   export module listCombine {
@@ -105,7 +115,7 @@ declare module 'immy' {
   }
 
   export type ListCombiner <TPrimary, TSecondary, TCombined> = {
-    (primary: List<TPrimary>, secondary: List<TSecondary>): List<TCombined>
+    (primary: ImmyList<TPrimary>, secondary: ImmyList<TSecondary>): ImmyList<TCombined>
   }
 
   export function Map<K, V>(): ImmyMap<K, V>
@@ -127,6 +137,11 @@ declare module 'immy' {
     get (key): V  
     has (key): boolean
     delete (key): ImmyMap<K, V>
+    forEach (sideEffect: (value?: V, key?: K, map?: ImmyMap<K, V>) => any, thisVal?: any): number
+    map<M> (mapper: (value: V, key: K, map: ImmyMap<V>) => M, thisVal?: any): ImmyMap<K, M>
+    filter (predicate: (value?: T, key?: K, map?: ImmyMap<K, V>) => boolean, thisVal?: any): ImmyMap<K, V>
+    toList (): ImmyList<V>
+    toSet (): ImmySet<V>
     toMap (): Map<K, V>
     toJS (): Map<K, V>
     [Symbol.iterator] (): IterableIterator<[K, V]>
@@ -163,9 +178,11 @@ declare module 'immy' {
     add (value): ImmySet<T> 
     has (value): boolean
     delete (value): ImmySet<T>
-    toSet (): Set<T>
+    toSet (): ImmySet<T>
     toArray(): T[]
     toJS (): Set<T>
+    toList (): ImmyList<T>
+    forEach (sideEffect: (value?: T, key?: T, set?: ImmySet<T>) => any, thisVal?: any): number
     [Symbol.iterator] (): IterableIterator<T>
     observeChangesFor (otherSet: ImmySet<T>, observer: ImmySetObserver<T>): boolean  
     toString (): string

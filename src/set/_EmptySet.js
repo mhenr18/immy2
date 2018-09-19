@@ -1,5 +1,6 @@
 import _Set from './_Set'
 import SetObserverWrapper from './SetObserverWrapper'
+import { emptyListInstance } from '../list/_EmptyList'
 
 let emptySetInstance = null
 
@@ -38,11 +39,19 @@ class _EmptySet {
   }
 
   toSet () {
-    return new Set()
+    return this
+  }
+
+  toList () {
+    return emptyListInstance
   }
 
   toJS () {
-    return this.toSet()
+    return new Set()
+  }
+
+  forEach (sideEffect) {
+    return 0
   }
 
   // yields no values

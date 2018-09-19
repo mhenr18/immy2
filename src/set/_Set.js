@@ -5,6 +5,7 @@ import _MutableStack from '../mutable/_MutableStack'
 import _MutablePool from '../mutable/_MutablePool'
 import deletePatch from './deletePatch'
 import insertPatch from './insertPatch'
+import ImmyList from '../list'
 
 let _stackCache = new _MutablePool(() => new _MutableStack())
 
@@ -100,12 +101,16 @@ export default class _Set {
     return Array.from(backing)
   }
 
+  toList () {
+    return ImmyList(this.toArray(), true)
+  }
+
   toSet () {
-    return new Set(this._getBacking())
+    return this
   }
 
   toJS () {
-    return this.toSet()
+    return new Set(this._getBacking())
   }
 
   * [Symbol.iterator] () {
@@ -119,6 +124,19 @@ export default class _Set {
     } finally {
       this.root.unlock()
     }
+  }
+
+  forEach (sideEffect, thisVal) {
+    let i = 0
+    for (let value of this) {
+      if (sideEffect.call(thisVal, value, value, this) === false) {
+        return i
+      }
+
+      ++i
+    }
+
+    return this.size
   }
 
   // if an observer function returns false, the observation will immediately

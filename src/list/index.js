@@ -1,7 +1,7 @@
 import { emptyListInstance } from './_EmptyList'
 import _List from './_List'
 
-export default function List (collection, noCopy) {
+export default function ImmyList (collection, noCopy) {
   if (arguments.length === 0) {
     return emptyListInstance
   }

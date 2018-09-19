@@ -6,6 +6,8 @@ import _MutablePool from '../mutable/_MutablePool'
 import deletePatch from './deletePatch'
 import insertPatch from './insertPatch'
 import updatePatch from './updatePatch'
+import ImmyList from '../list'
+import ImmySet from '../set'
 
 let _stackCache = new _MutablePool(() => new _MutableStack())
 
@@ -116,12 +118,67 @@ export default class _Map {
     throw new Error('not done yet')
   }
 
+  map (mapper, thisVal) {
+    let mapped = new Map()
+
+    for (let [key, value] of this) {
+      mapped.set(key, mapper.call(thisVal, value, key, this))
+    }
+
+    return new _Map(mapped)
+  }
+
+  forEach (sideEffect, thisVal) {
+    let i = 0
+    for (let [key, value] of this) {
+      if (sideEffect.call(thisVal, value, key, this) === false) {
+        return i
+      }
+
+      ++i
+    }
+
+    return this.size
+  }
+
+  filter (predicate, thisVal) {
+    let filtered = new Map()
+
+    for (let [key, value] of this) {
+      if (predicate.call(thisVal, value, key, this)) {
+        filtered.set(key, value)
+      }
+    }
+
+    return new _Map(filtered)
+  }
+
+  toList () {
+    let values = []
+
+    for (let [_, value] of this) {
+      values.push(value)
+    }
+
+    return ImmyList(values, true)
+  }
+
+  toSet () {
+    let values = []
+
+    for (let [_, value] of this) {
+      values.push(value)
+    }
+
+    return ImmySet(values)
+  }
+
   toMap () {
-    return new Map(this._getBacking())
+    return this
   }
 
   toJS () {
-    return this.toMap()
+    return new Map(this._getBacking())
   }
 
   * [Symbol.iterator] () {
