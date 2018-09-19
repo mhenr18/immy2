@@ -4,7 +4,7 @@ import { makePatch } from '../util'
 
 const insertPatch = makePatch({
   name: 'insert',
-  apply: (backing, i) => backing.set(i),
+  apply: (backing, i) => backing.add(i),
   applyWrapper: (i, wrapper) => wrapper.insert(i),
 
   invertName: 'delete',

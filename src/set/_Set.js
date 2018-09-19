@@ -42,10 +42,6 @@ export default class _Set {
     this.size = backing.size // size is a public API
     this.root = root || new SetRoot() // root is a public API
 
-    // on lists it makes sense to keep this._i as a number as
-    // it will always be a number - for sets we don't know what
-    // the key type will be to this._i is treated like the other
-    // parameters
     this._i = null
     this._patchFunc = null
     this._patchTarget = null
@@ -76,27 +72,27 @@ export default class _Set {
   }
 
   add (value) {
-    if (this.has(key)) {
+    if (this.has(value)) {
       return this
     }
 
     return this._withPatch(insertPatch, value)
   }
 
-  delete (key) {
-    if (!this.has(key)) {
+  delete (value) {
+    if (!this.has(value)) {
       return
     }
 
     if (this.size === 1) {
       return emptySetInstance
     } else {
-      return this._withPatch(deletePatch, existingValue)
+      return this._withPatch(deletePatch, value)
     }
   }
 
-  has (key) {
-    return this._getBacking().has(key)
+  has (value) {
+    return this._getBacking().has(value)
   }
 
   toArray () {
@@ -189,12 +185,12 @@ export default class _Set {
     return this.toString()
   }
 
-  _withPatch (patchFunc, key) {
+  _withPatch (patchFunc, value) {
     this._ensureUnlocked()
   
-    patchFunc(this._getBacking(), key)
+    patchFunc(this._getBacking(), value)
 
-    this._i = key
+    this._i = value
     this._patchFunc = patchFunc.inverse
 
     const newSet = new _Set(this._backing, this.root)
