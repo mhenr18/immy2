@@ -24,7 +24,7 @@ export default class MapSelector {
       oldSrcList.observeChangesFor(srcList, {
         insert: (i, x) => (mappedList = mappedList.insert(i, this.mapper(x))),
         delete: (i, x) => (mappedList = mappedList.delete(i)),
-        set: (i, x) => (mappedList = mappedList.set(i, this.mapper(x)))
+        set: (i, _, x) => (mappedList = mappedList.set(i, this.mapper(x)))
       })
 
       // update our cache

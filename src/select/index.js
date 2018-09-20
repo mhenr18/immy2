@@ -4,11 +4,13 @@ import _Map from "../map/_Map";
 import { emptyMapInstance } from "../map/_EmptyMap";
 import FilterSelector from "./FilterSelector";
 import MapSelector from './MapSelector'
+import MapMapSelector from './MapMapSelector'
 import GroupBySelector from "./GroupBySelector";
 import ToMapSelector from "./ToMapSelector";
 import OrderBySelector from "./OrderBySelector";
 import UngroupSelector from "./UngroupSelector";
 import KeysSelector from "./KeysSelector";
+import ValuesSelector from "./ValuesSelector";
 import JoinSelector from "./JoinSelector";
 import ListTracer from './ListTracer'
 import MapTracer from './MapTracer'
@@ -96,8 +98,16 @@ class SelectionPipeline {
         return new SelectionPipeline([ ...this.selectors, new UngroupSelector(ungrouper) ], this.accepts, 'list').func()
       }
 
+      f.map = (mapper) => {
+        return new SelectionPipeline([ ...this.selectors, new MapMapSelector(mapper) ], this.accepts, 'map').func()
+      }
+
       f.keys = () => {
         return new SelectionPipeline([ ...this.selectors, new KeysSelector() ], this.accepts, 'list').func()
+      }
+
+      f.values = () => {
+        return new SelectionPipeline([ ...this.selectors, new ValuesSelector() ], this.accepts, 'list').func()
       }
 
       f.join = (secondarySelector, joiner) => {
