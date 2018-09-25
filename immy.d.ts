@@ -43,6 +43,7 @@ declare module 'immy' {
     shift (): ImmyList<T>
     shiftMany (deleteCount: number): ImmyList<T>
     setSize (newSize: number): ImmyList<T>
+    splice (index: number, removeNum?: number): ImmyList<T>
     splice (index: number, removeNum: number, ...values: T[]): ImmyList<T>
     toArray (): T[]
     toList (): ImmyList<T>
