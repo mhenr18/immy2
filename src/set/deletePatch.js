@@ -8,7 +8,7 @@ const deletePatch = makePatch({
   applyWrapper: (i, wrapper) => wrapper.delete(i),
 
   invertName: 'insert',
-  invert: (backing, i) => backing.set(i),
+  invert: (backing, i) => backing.insert(i),
   invertWrapper: (i, wrapper) => wrapper.insert(i)
 })
 
