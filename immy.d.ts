@@ -119,8 +119,8 @@ declare module 'immy' {
     (primary: ImmyList<TPrimary>, secondary: ImmyList<TSecondary>): ImmyList<TCombined>
   }
 
-  export function Map<K, V>(): ImmyMap<K, V>
-  export function ImmyMap<K, V>(): ImmyMap<K, V>
+  export function Map<K, V>(valuesMap?: Map<K, V>, noCopy?: boolean): ImmyMap<K, V>
+  export function ImmyMap<K, V>(valuesMap?: Map<K, V>, noCopy?: boolean): ImmyMap<K, V>
 
   export interface ImmyMapObserver<K, V> {
     insert (key: K, newValue: V): void
