@@ -60,7 +60,7 @@ class _EmptyMap {
   }
 
   toJS () {
-    return this.toMap()
+    return new Map()
   }
 
   // yields no values

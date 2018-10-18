@@ -82,7 +82,7 @@ export default class _Set {
 
   delete (value) {
     if (!this.has(value)) {
-      return
+      return this
     }
 
     if (this.size === 1) {

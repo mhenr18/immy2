@@ -140,7 +140,7 @@ declare module 'immy' {
     delete (key): ImmyMap<K, V>
     forEach (sideEffect: (value?: V, key?: K, map?: ImmyMap<K, V>) => any, thisVal?: any): number
     map<M> (mapper: (value: V, key: K, map: ImmyMap<V>) => M, thisVal?: any): ImmyMap<K, M>
-    filter (predicate: (value?: T, key?: K, map?: ImmyMap<K, V>) => boolean, thisVal?: any): ImmyMap<K, V>
+    filter (predicate: (value?: V, key?: K, map?: ImmyMap<K, V>) => boolean, thisVal?: any): ImmyMap<K, V>
     toList (): ImmyList<V>
     toSet (): ImmySet<V>
     toMap (): Map<K, V>

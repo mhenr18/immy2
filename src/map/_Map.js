@@ -13,27 +13,23 @@ let _stackCache = new _MutablePool(() => new _MutableStack())
 
 class MapRoot {
   constructor () {
-    this.locked = false
+    this.lockCount = 0
   }
 
   lock () {
-    if (this.locked) {
-      console.log('attempted to lock an already locked root')
-    }
-
-    this.locked = true
+    this.lockCount++
   }
 
   unlock () {
-    if (!this.locked) {
-      throw new Error('attempted to unlock an already unlocked root')
+    if (this.lockCount === 0) {
+      throw new Error('attempting to unlock an already unlocked root')
     }
 
-    this.locked = false
+    this.lockCount--
   }
 
   isLocked () {
-    return this.locked
+    return this.lockCount > 0
   }
 }
 
