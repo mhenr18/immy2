@@ -143,7 +143,7 @@ declare module 'immy' {
     filter (predicate: (value?: V, key?: K, map?: ImmyMap<K, V>) => boolean, thisVal?: any): ImmyMap<K, V>
     toList (): ImmyList<V>
     toSet (): ImmySet<V>
-    toMap (): Map<K, V>
+    toMap (): ImmyMap<K, V>
     toJS (): Map<K, V>
     [Symbol.iterator] (): IterableIterator<[K, V]>
     observeChangesFor (otherMap: ImmyMap<K, V>, observer: ImmyMapObserver<K, V>): boolean  

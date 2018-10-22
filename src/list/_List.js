@@ -20,7 +20,7 @@ import growPatch from './growPatch'
 import splicePatch from './splicePatch'
 import deleteManySparsePatch from './deleteManySparsePatch'
 import ImmySet from '../set'
-import ImmyMap from '../set'
+import ImmyMap from '../map'
 import ImmyList from '.';
 
 const identitySelector = (x) => x
