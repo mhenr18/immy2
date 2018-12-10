@@ -126,6 +126,10 @@ class _EmptyList {
     return emptySetInstance
   }
 
+  indexOf () {
+    return -1
+  }
+
   find (predicate, thisVal, notSetValue) {
     return notSetValue
   }

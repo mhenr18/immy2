@@ -49,6 +49,7 @@ declare module 'immy' {
     toList (): ImmyList<T>
     toJS (): T[]
     toSet (): ImmySet<T>
+    indexOf (val: T): number
     find (predicate: (value?: T, index?: number, list?: ImmyList<T>) => boolean, thisVal?: any, notSetValue?: T): T
     findIndex (predicate: (value?: T, index?: number, list?: ImmyList<T>) => boolean, thisVal?: any): number
     [Symbol.iterator](): IterableIterator<T>

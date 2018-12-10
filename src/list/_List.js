@@ -556,6 +556,10 @@ export default class _List {
     return this.toArray()
   }
 
+  indexOf (val) {
+    return this._getBacking().indexOf(val)
+  }
+
   find (predicate, thisVal, notSetValue) {
     for (let i = 0; i < this.size; ++i) {
       const value = this.get(i)
