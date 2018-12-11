@@ -18,6 +18,10 @@ export default function SetCreator (collection, noCopy) {
   } else if (collection instanceof _Set) {
     return new _Set(new Set(collection._getBacking()))
   } else if (Array.isArray(collection)) {
+    if (collection.length === 0) {
+      return emptySetInstance
+    }
+
     return new _Set(new Set(collection))
   } else if (collection != null) {
     let backing = new Set(collection)
