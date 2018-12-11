@@ -687,6 +687,9 @@ export default class _List {
 
     if (newBacking.length === 0) {
       return emptyListInstance
+    } else if (newBacking.length === this.size) {
+      // if we haven't filtered anything, we may as well return ourselves
+      return this
     }
 
     return new _List(newBacking)
