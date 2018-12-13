@@ -11,7 +11,7 @@ export default class FlatMapSelector {
 
   select (srcList) {
     if (srcList.size === 0) {
-      return ImmyList()
+      return List()
     }
 
     let { prevList, flatMappedList, offsets, mappedValues } = this._cache.swap(srcList.root, null, () => ({
