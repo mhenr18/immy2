@@ -22,7 +22,7 @@ export default class MapMapSelector {
       cacheEntry = null
 
       oldSrcMap.observeChangesFor(srcMap, {
-        insert: (k, v) => (mappedMap = mappedMap.insert(k, this.mapper(v))),
+        insert: (k, v) => (mappedMap = mappedMap.set(k, this.mapper(v))),
         delete: (k, v) => (mappedMap = mappedMap.delete(k)),
         set: (k, _, v) => (mappedMap = mappedMap.set(k, this.mapper(v)))
       })
