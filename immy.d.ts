@@ -1,8 +1,66 @@
 
 declare module 'immy' {
+  type SelectBase = {
+    from<TSource, Out>(selector: ListSelector<TSource, Out>): ListSelector<TSource, Out>
+    from<TSource, OutK, OutV>(selector: MapSelector<TSource, OutK, OutV>): MapSelector<TSource, OutK, OutV>
+    fromList<T>(): ListSelector<ImmyList<T>, T>
+    fromMap<K, V>(): MapSelector<ImmyMap<K, V>, K, V>
+  }
+
+  type Orderable = string | number | null | undefined | (string | number | null | undefined)[]
+
+  interface ListSelectorBase <TSource, Out> {
+    (source: TSource): ImmyList<Out>
+
+    filter (predicate: (value: Out) => boolean): ListSelector<TSource, Out>
+    map <T> (mapper: (value: Out) => T): ListSelector<TSource, T>
+    flatMap <T> (mapper: (value: Out) => Iterable<T>): ListSelector<TSource, T>
+
+    orderBy (orderSelector: (value: Out) => Orderable): ListSelector<TSource, Out>
+    sort (comparator: (a: Out, b: Out) => number): ListSelector<TSource, Out>
+
+    groupBy <K> (grouper: (value: Out) => K): MapSelector<TSource, K, ImmyList<Out>>
+    groupBy <K, V> (grouper: (value: Out) => K, valueSelector: (value: Out) => V): MapSelector<TSource, K, ImmyList<V>>
+
+    trace (): ListSelector<TSource, Out>
+  }
+
+  type IterableListSelector <TSource, OutV, Out extends Iterable<OutV>> = {
+    flatten (): ListSelector<TSource, OutV>
+  }
+
+  type OrderableListSelector <TSource, OutV extends Orderable> = {
+    sort (): ListSelector<TSource, OutV>
+  }
+
+  type ToMapListSelector <TSource, K, V, OutV extends [K, V]> = {
+    toMap (): MapSelector<TSource, K, V>
+  }
+
+  type ListSelector <TSource, Out> = ListSelectorBase<TSource, Out> &
+    (Out extends Iterable<infer U> ? IterableListSelector<TSource, U, Out> : {}) &
+    (Out extends Orderable ? OrderableListSelector<TSource, Out> : {}) &
+    (Out extends [infer K, infer V] ? ToMapListSelector<TSource, K, V, Out> : {})
+
+  interface MapSelectorBase <TSource, OutK, OutV> {
+    (source: TSource): ImmyMap<OutK, OutV>
+
+    map <T> (mapper: (value: OutV) => T): MapSelector<TSource, OutK, T>
+    values (): ListSelector<TSource, OutV>
+    keys (): ListSelector<TSource, OutK>
+    trace (): MapSelector<TSource, OutK, OutV>
+    filterByValue (predicate: (value: OutV) => boolean): MapSelector<TSource, OutK, OutV>
+  }
+
+  type GroupedMapSelector <TSource, OutK, Out, OutV extends ImmyList<Out>> = {
+    ungroup (): ListSelector<TSource, Out>
+    ungroup <T> (ungrouper: (value: Out, key: OutK) => T): ListSelector<TSource, T>
+  }
+
+  type MapSelector <TSource, OutK, OutV> = MapSelectorBase<TSource, OutK, OutV> &
+    (OutV extends ImmyList<infer U> ? GroupedMapSelector<TSource, OutK, U, OutV> : {})
   
-  // TODO: improve these typings
-  export var select: any
+  export var select: SelectBase
 
   export function List<T>(valuesArr?: T[], noCopy?: boolean): ImmyList<T>
   export function ImmyList<T>(valuesArr?: T[], noCopy?: boolean): ImmyList<T>
@@ -16,7 +74,7 @@ declare module 'immy' {
     set? (index: number, oldValue: T, newValue: T): void
   }
 
-  export interface ImmyList<T> {
+  export interface ImmyListBase <T> {
     readonly size: number
     readonly root: {}
 
@@ -64,14 +122,23 @@ declare module 'immy' {
     ): TReduction
     filter (predicate: (value?: T, index?: number, list?: ImmyList<T>) => boolean, thisVal?: any): ImmyList<T>
     filterInPlace (predicate: (value?: T, index?: number, list?: ImmyList<T>) => boolean, thisVal?: any): ImmyList<T>
-    sort (comparator?: (valueA: C, valueB: C) => number): ImmyList<T>
-    sortBy<C> (comparatorValueMapper: (value: T, key: number, iter: ImmyList<T>) => C, comparator?: (valueA: C, valueB: C) => number): ImmyList<T>
+    sort (comparator: (valueA: T, valueB: T) => number): ImmyList<T>
+
+    sortBy (comparatorValueMapper: (value: T, key: number, iter: ImmyList<T>) => Orderable): ImmyList<T>
+    sortBy<C> (comparatorValueMapper: (value: T, key: number, iter: ImmyList<T>) => C, comparator: (valueA: C, valueB: C) => number): ImmyList<T>
     flatMap<M> (mapper: (value: T, key: number, iter: ImmyList<T>) => Iterable<M>, thisVal?: any): ImmyList<M>
     groupBy<G> (grouper: (value: T, key: number, iter: ImmyList<T>) => G, thisVal?: any): ImmyMap<G, ImmyList<T>>
     observeChangesFor (otherList: ImmyList<T>, observer: ListObserver<T>): boolean
     toString (): string
     inspect (): string
   }
+
+  export type SortableImmyList <T extends Orderable> = {
+    sort (): ImmyList<T>
+  }
+
+  export type ImmyList <T> = ImmyListBase<T> &
+    (T extends Orderable ? SortableImmyList<T> : {})
 
   export module listSelect {
     function map <T, TMapped> (mapper: (value: T) => TMapped): ListListSelector<T, TMapped>
@@ -140,7 +207,7 @@ declare module 'immy' {
     has (key): boolean
     delete (key): ImmyMap<K, V>
     forEach (sideEffect: (value?: V, key?: K, map?: ImmyMap<K, V>) => any, thisVal?: any): number
-    map<M> (mapper: (value: V, key: K, map: ImmyMap<V>) => M, thisVal?: any): ImmyMap<K, M>
+    map<M> (mapper: (value: V, key: K, map: ImmyMap<K, V>) => M, thisVal?: any): ImmyMap<K, M>
     filter (predicate: (value?: V, key?: K, map?: ImmyMap<K, V>) => boolean, thisVal?: any): ImmyMap<K, V>
     toList (): ImmyList<V>
     toSet (): ImmySet<V>
