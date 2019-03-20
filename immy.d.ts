@@ -203,9 +203,9 @@ declare module 'immy' {
 
     clear (): ImmyMap<K, V>
     set (key: K, value: V): ImmyMap<K, V>
-    get (key): V  
-    has (key): boolean
-    delete (key): ImmyMap<K, V>
+    get (key: K): V  
+    has (key: K): boolean
+    delete (key: K): ImmyMap<K, V>
     forEach (sideEffect: (value?: V, key?: K, map?: ImmyMap<K, V>) => any, thisVal?: any): number
     map<M> (mapper: (value: V, key: K, map: ImmyMap<K, V>) => M, thisVal?: any): ImmyMap<K, M>
     filter (predicate: (value?: V, key?: K, map?: ImmyMap<K, V>) => boolean, thisVal?: any): ImmyMap<K, V>
@@ -244,9 +244,9 @@ declare module 'immy' {
     first(): T
     count(): number
     clear (): ImmySet<T>
-    add (value): ImmySet<T> 
-    has (value): boolean
-    delete (value): ImmySet<T>
+    add (value: T): ImmySet<T> 
+    has (value: T): boolean
+    delete (value: T): ImmySet<T>
     toSet (): ImmySet<T>
     toArray(): T[]
     toJS (): Set<T>
