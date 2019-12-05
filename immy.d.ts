@@ -108,20 +108,21 @@ declare module 'immy' {
     toJS (): T[]
     toSet (): ImmySet<T>
     indexOf (val: T): number
-    find (predicate: (value?: T, index?: number, list?: ImmyList<T>) => boolean, thisVal?: any, notSetValue?: T): T
-    findIndex (predicate: (value?: T, index?: number, list?: ImmyList<T>) => boolean, thisVal?: any): number
+    find (predicate: (value: T, index: number, list: ImmyList<T>) => boolean, thisVal?: any, notSetValue?: T): T
+    findIndex (predicate: (value: T, index: number, list: ImmyList<T>) => boolean, thisVal?: any): number
     [Symbol.iterator](): IterableIterator<T>
-    forEach (sideEffect: (value?: T, index?: number, list?: ImmyList<T>) => any, thisVal?: any): number
-    map <TMapped> (mapper: (value?: T, index?: number, list?: ImmyList<T>) => TMapped, thisVal?: any): ImmyList<TMapped>
-    pureMap <TMapped> (mapper: (value?: T) => TMapped): ImmyList<TMapped>
-    mapInPlace <TMapped> (mapper: (value?: T, index?: number, list?: ImmyList<T>) => TMapped, thisVal?: any): ImmyList<TMapped>
+    forEach (sideEffect: (value: T, index: number, list: ImmyList<T>) => any, thisVal?: any): number
+    map <TMapped> (mapper: (value: T, index: number, list: ImmyList<T>) => TMapped, thisVal?: any): ImmyList<TMapped>
+    pureMap <TMapped> (mapper: (value: T) => TMapped): ImmyList<TMapped>
+    mapInPlace <TMapped> (mapper: (value: T, index: number, list: ImmyList<T>) => TMapped, thisVal?: any): ImmyList<TMapped>
     reduce <TReduction> (
-      reducer: (reduction: TReduction, value?: T, index?: number, list?: ImmyList<T>) => TReduction,
+      reducer: (reduction: TReduction, value: T, index: number, list: ImmyList<T>) => TReduction,
       initialReduction?: TReduction,
       thisVal?: any
     ): TReduction
-    filter (predicate: (value?: T, index?: number, list?: ImmyList<T>) => boolean, thisVal?: any): ImmyList<T>
-    filterInPlace (predicate: (value?: T, index?: number, list?: ImmyList<T>) => boolean, thisVal?: any): ImmyList<T>
+    filter<S extends T>(predicate: (value: T, index: number, list: ImmyList<T>) => value is S, thisArg?: any): ImmyList<S>
+    filter(predicate: (value: T, index: number, list: ImmyList<T>) => boolean, thisVal?: any): ImmyList<T>
+    filterInPlace (predicate: (value: T, index: number, list: ImmyList<T>) => boolean, thisVal?: any): ImmyList<T>
     sort (comparator: (valueA: T, valueB: T) => number): ImmyList<T>
 
     sortBy (comparatorValueMapper: (value: T, key: number, iter: ImmyList<T>) => Orderable): ImmyList<T>
@@ -206,9 +207,9 @@ declare module 'immy' {
     get (key: K): V  
     has (key: K): boolean
     delete (key: K): ImmyMap<K, V>
-    forEach (sideEffect: (value?: V, key?: K, map?: ImmyMap<K, V>) => any, thisVal?: any): number
+    forEach (sideEffect: (value: V, key: K, map: ImmyMap<K, V>) => any, thisVal?: any): number
     map<M> (mapper: (value: V, key: K, map: ImmyMap<K, V>) => M, thisVal?: any): ImmyMap<K, M>
-    filter (predicate: (value?: V, key?: K, map?: ImmyMap<K, V>) => boolean, thisVal?: any): ImmyMap<K, V>
+    filter (predicate: (value: V, key: K, map: ImmyMap<K, V>) => boolean, thisVal?: any): ImmyMap<K, V>
     toList (): ImmyList<V>
     toSet (): ImmySet<V>
     toMap (): ImmyMap<K, V>
@@ -251,7 +252,7 @@ declare module 'immy' {
     toArray(): T[]
     toJS (): Set<T>
     toList (): ImmyList<T>
-    forEach (sideEffect: (value?: T, key?: T, set?: ImmySet<T>) => any, thisVal?: any): number
+    forEach (sideEffect: (value: T, key: T, set: ImmySet<T>) => any, thisVal?: any): number
     [Symbol.iterator] (): IterableIterator<T>
     observeChangesFor (otherSet: ImmySet<T>, observer: ImmySetObserver<T>): boolean  
     toString (): string
