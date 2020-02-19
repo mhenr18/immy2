@@ -30,6 +30,8 @@ export default class _MutableStack {
     }
 
     --this.size
-    return this._buffer[this.size]
+    const r = this._buffer[this.size]
+    this._buffer[this.size] = undefined // don't leak references
+    return r
   }
 }
