@@ -39,7 +39,7 @@ export default class ListObserverWrapper {
     }
 
     if (this.observer.push) {
-      this.active = r(this.observer.push(value, index))
+      this.active = r(this.observer.push(value))
     } else {
       this.active = r(this.observer.insert(index, value))
     }
@@ -51,7 +51,7 @@ export default class ListObserverWrapper {
     }
 
     if (this.observer.pop) {
-      this.active = r(this.observer.pop(value, index))
+      this.active = r(this.observer.pop(value))
     } else {
       this.active = r(this.observer.delete(index, value))
     }

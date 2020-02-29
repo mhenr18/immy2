@@ -15,13 +15,6 @@ describe('_List.toArray and _List.toJS', () => {
   })
 })
 
-describe('_List.expand', () => {
-  test('returns the same list', () => {
-    const list = new _List(['a', 'b', 'c'])
-    expect(list.expand()).toBe(list)
-  })
-})
-
 describe('_List.clear', () => {
   test('returns an empty list', () => {
     const list = new _List(['a', 'b', 'c'])

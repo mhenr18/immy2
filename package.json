@@ -27,14 +27,14 @@
     "babel-jest": "^22.4.3",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
     "immutable": "3.8.x",
-    "jest": "^22.4.3",
+    "jest": "^25.1.0",
     "left-pad": "1.2.x",
     "mori": "^0.3.2",
     "regenerator-runtime": "^0.11.1",
     "single-line-log": "1.1.x",
     "v8-natives": "1.1.x",
-    "webpack": "4.4.x",
-    "webpack-cli": "2.0.x"
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
   },
   "jest": {
     "collectCoverage": true,
