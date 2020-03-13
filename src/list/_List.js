@@ -845,6 +845,61 @@ export default class _List {
     return wrapper.active
   }
 
+  experimental_applyChangesFor (otherList) {
+    let a = this
+    let b = otherList
+
+    let prev = a
+    let aBase = 0
+    let bBase = 0
+    while (aBase < a.size && bBase < b.size) {
+      let seeking = true
+      for (let ai = aBase; seeking && ai < a.size; ++ai) {
+        for (let bi = bBase; seeking && bi < b.size; ++bi) {
+          if (a.get(ai) === b.get(bi)) {
+            if (ai > aBase || bi > bBase) {
+              // remove everything between aBase and ai
+              a = a.splice(aBase, ai - aBase)
+              ai = aBase
+
+              // insert everything between bBase and bi
+              for (let j = bBase; j < bi; ++j) {
+                a = a.insert(ai, b.get(j))
+                ++ai
+              }
+            }
+
+            aBase = bBase = ai + 1
+            seeking = false
+            prev = a
+          }
+        }
+      }
+
+      if (seeking) {
+        // lists are totally different from aBase/bBase onwards, so we're done
+        break
+      }
+    }
+
+    if (aBase < a.size && bBase < b.size && aBase === 0 && bBase === 0) {
+      // nothing was common between the lists, so just return the new list
+      return otherList
+    }
+
+    if (aBase < a.size) {
+      a = a.splice(aBase)
+    }
+
+    if (bBase < b.size) {
+      for (let i = bBase; i < b.size; ++i) {
+        a = a.push(b.get(i))
+      }
+    }
+
+    return a
+  }
+
   toString () {
     if (this.size < 13) {
       return `ImmyList(${this.size}) [ `

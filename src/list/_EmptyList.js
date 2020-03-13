@@ -194,6 +194,12 @@ class _EmptyList {
     wrapper.pushMany(0, otherList._getBacking().slice())
   }
 
+  experimental_applyChangesFor (otherList) {
+    // the diff between an empty list and the other list is just the entire contents of
+    // the other list, so we don't need to do any work here
+    return otherList
+  }
+
   toString () {
     return `ImmyList(0) []`
   }

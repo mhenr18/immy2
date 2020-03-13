@@ -130,6 +130,14 @@ declare module 'immy' {
     flatMap<M> (mapper: (value: T, key: number, iter: ImmyList<T>) => Iterable<M>, thisVal?: any): ImmyList<M>
     groupBy<G> (grouper: (value: T, key: number, iter: ImmyList<T>) => G, thisVal?: any): ImmyMap<G, ImmyList<T>>
     observeChangesFor (otherList: ImmyList<T>, observer: ListObserver<T>): boolean
+
+    /** calculates the diff between this list and the otherList (using === equality of elements), and applies
+     *  that diff to this list. the result is a set of changes applied that work nicely with change tracking.
+     * 
+     * this is an experimental API that has not yet been rigorously tested or optimized. it works best with
+     * sorted lists.
+     */
+    experimental_applyChangesFor (otherList: ImmyList<T>): ImmyList<T>
     toString (): string
     inspect (): string
   }
