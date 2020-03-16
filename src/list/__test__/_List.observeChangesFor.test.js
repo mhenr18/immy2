@@ -66,9 +66,9 @@ describe('_List.observeChangesFor', () => {
     expect(observer.insert).not.toHaveBeenCalled()
     expect(observer.delete).not.toHaveBeenCalled()
     expect(observer.pop.mock.calls).toEqual([
-      ['c'],
-      ['b'],
-      ['a']
+      ['c', 2],
+      ['b', 1],
+      ['a', 0]
     ])
   })
 
@@ -130,9 +130,9 @@ describe('_List.observeChangesFor', () => {
     expect(observer.delete).not.toHaveBeenCalled()
     expect(observer.clear).toHaveBeenCalledTimes(1)
     expect(observer.push.mock.calls).toEqual([
-      ['x'],
-      ['y'],
-      ['z']
+      ['x', 0],
+      ['y', 1],
+      ['z', 2]
     ])
   })
 
@@ -229,7 +229,7 @@ describe('_List.observeChangesFor', () => {
     expect(observer.insert).not.toHaveBeenCalled()
     expect(observer.delete).not.toHaveBeenCalled()
     expect(observer.push).toHaveBeenCalledTimes(1)
-    expect(observer.push).toHaveBeenCalledWith('d')
+    expect(observer.push).toHaveBeenCalledWith('d', 3)
   })
 
   test('calls insert if push is not defined', () => {
@@ -264,7 +264,7 @@ describe('_List.observeChangesFor', () => {
     expect(observer.insert).not.toHaveBeenCalled()
     expect(observer.delete).not.toHaveBeenCalled()
     expect(observer.pop).toHaveBeenCalledTimes(1)
-    expect(observer.pop).toHaveBeenCalledWith('d')
+    expect(observer.pop).toHaveBeenCalledWith('d', 3)
   })
 
   test('calls pushMany correctly', () => {
@@ -300,9 +300,9 @@ describe('_List.observeChangesFor', () => {
     expect(observer.insert).not.toHaveBeenCalled()
     expect(observer.delete).not.toHaveBeenCalled()
     expect(observer.pop.mock.calls).toEqual([
-      ['f'],
-      ['e'],
-      ['d']
+      ['f', 5],
+      ['e', 4],
+      ['d', 3]
     ])
   })
 
@@ -321,9 +321,9 @@ describe('_List.observeChangesFor', () => {
     expect(observer.insert).not.toHaveBeenCalled()
     expect(observer.delete).not.toHaveBeenCalled()
     expect(observer.push.mock.calls).toEqual([
-      [undefined],
-      [undefined],
-      [undefined]
+      [undefined, 3],
+      [undefined, 4],
+      [undefined, 5]
     ])
   })
 
@@ -342,9 +342,9 @@ describe('_List.observeChangesFor', () => {
     expect(observer.insert).not.toHaveBeenCalled()
     expect(observer.delete).not.toHaveBeenCalled()
     expect(observer.pop.mock.calls).toEqual([
-      [undefined],
-      [undefined],
-      [undefined]
+      [undefined, 5],
+      [undefined, 4],
+      [undefined, 3]
     ])
   })
 
@@ -363,10 +363,10 @@ describe('_List.observeChangesFor', () => {
     expect(observer.insert).not.toHaveBeenCalled()
     expect(observer.delete).not.toHaveBeenCalled()
     expect(observer.pop.mock.calls).toEqual([
-      ['e'],
-      ['d'],
-      ['c'],
-      ['b']
+      ['e', 4],
+      ['d', 3],
+      ['c', 2],
+      ['b', 1]
     ])
   })
 
@@ -403,7 +403,7 @@ describe('_List.observeChangesFor', () => {
     expect(observer.insert).not.toHaveBeenCalled()
     expect(observer.delete).not.toHaveBeenCalled()
     expect(observer.pop.mock.calls).toEqual([
-      ['e']
+      ['e', 4]
     ])
   })
 
@@ -422,7 +422,7 @@ describe('_List.observeChangesFor', () => {
     expect(observer.insert).not.toHaveBeenCalled()
     expect(observer.delete).not.toHaveBeenCalled()
     expect(observer.push.mock.calls).toEqual([
-      ['e']
+      ['e', 4]
     ])
   })
 

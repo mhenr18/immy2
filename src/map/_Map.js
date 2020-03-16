@@ -11,35 +11,17 @@ import ImmySet from '../set'
 
 let _stackCache = new _MutablePool(() => new _MutableStack())
 
-class MapRoot {
-  constructor () {
-    this.lockCount = 0
-  }
-
-  lock () {
-    this.lockCount++
-  }
-
-  unlock () {
-    if (this.lockCount === 0) {
-      throw new Error('attempting to unlock an already unlocked root')
-    }
-
-    this.lockCount--
-  }
-
-  isLocked () {
-    return this.lockCount > 0
-  }
-}
-
 export default class _Map {
   // the given backing will *not* be copied.
   // this constructor is not suitable for use externally.
   constructor (backing, root) {
     this._backing = backing
     this.size = backing.size // size is a public API
-    this.root = root || new MapRoot() // root is a public API
+    this.root = root || {} // root is a public API
+
+    // set during iteration - if you need to take the backing of a map being iterated on
+    // you must copy that backing instead.
+    this.iterating = false
 
     // on lists it makes sense to keep this._i as a number as
     // it will always be a number - for maps we don't know what
@@ -50,12 +32,6 @@ export default class _Map {
     this._y = null
     this._patchFunc = null
     this._patchTarget = null
-  }
-
-  _ensureUnlocked () {
-    if (this.root.isLocked()) {
-      throw new Error('unable to create new versions of a locked map')
-    }
   }
 
   clear () {
@@ -178,15 +154,13 @@ export default class _Map {
   }
 
   * [Symbol.iterator] () {
-    // iteration over maps/sets is a weakness of immy - you can't create
-    // any new versions of the list while iterating over it.
     const backing = this._getBacking()
-    this.root.lock()
+    this.iterating = true
 
     try {
       yield* backing
     } finally {
-      this.root.unlock()
+      this.iterating = false
     }
   }
 
@@ -255,29 +229,41 @@ export default class _Map {
   }
 
   _withPatch (patchFunc, key, x, y) {
-    this._ensureUnlocked()
-  
-    patchFunc(this._getBacking(), key, x, y)
+    let backing = this._getBackingForMutation()
+    patchFunc(backing, key, x, y)
 
     this._i = key
     this._x = x
     this._y = y
     this._patchFunc = patchFunc.inverse
 
-    const newMap = new _Map(this._backing, this.root)
+    const newMap = new _Map(backing, this.root)
     this._patchTarget = newMap
     this._backing = null
 
     return newMap
   }
 
+  _getBackingForMutation () {
+    let backing = this._getBacking()
+
+    // when iterating over a map, it's unsafe to mutate the backing as it could
+    // change the order of iteration. so, we return a copy of the backing to make
+    // it safe to mutate.
+    //
+    // it's totally OK to null out the _backing field though, as iteration takes
+    // a copy of the backing reference
+    if (this.iterating) {
+      console.debug('performance warning - duplicating an ImmyMap backing due to mutation during iteration')
+      return new Map(backing)
+    }
+
+    return backing
+  }
+
   _getBacking () {
     if (this._backing != null) {
       return this._backing
-    }
-
-    if (this.root.isLocked()) {
-      throw new Error('unable to get backing - the map root is locked')
     }
 
     // to avoid stack overflow in cases where there's tons of patches to apply, we
@@ -293,13 +279,14 @@ export default class _Map {
     }
 
     let backed = stack.pop()
+    let backing = backed._getBackingForMutation()
     while (stack.size > 0) {
       let unbacked = stack.pop()
-      unbacked._patchFunc(backed._backing, unbacked._i, unbacked._x, unbacked._y)
+      unbacked._patchFunc(backing, unbacked._i, unbacked._x, unbacked._y)
 
       // invert the situation so that the previously-backed map now points at the
       // previously-unbacked map and can recover its backing
-      unbacked._backing = backed._backing
+      unbacked._backing = backing
       backed._patchTarget = unbacked
       backed._patchFunc = unbacked._patchFunc.inverse
       backed._i = unbacked._i

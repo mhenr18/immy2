@@ -1,6 +1,6 @@
 {
   "name": "immy",
-  "version": "1.0.0-alpha.28",
+  "version": "1.0.0-alpha.29",
   "description": "Fast immutable data structures that use change-tracking",
   "main": "dist/immy.js",
   "module": "src/index.js",

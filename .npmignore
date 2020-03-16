@@ -1,4 +1,5 @@
 .vscode/
 .babelrc/
 .gitignore/
+coverage/
 webpack.config.js/
