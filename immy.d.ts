@@ -266,4 +266,8 @@ declare module 'immy' {
     toString (): string
     inspect (): string
   }
+
+  export function isImmyList (maybeList: any): maybeList is ImmyList<any>
+  export function isImmySet (maybeSet: any): maybeSet is ImmySet<any>
+  export function isImmyMap (maybeMap: any): maybeMap is ImmyMap<any, any>
 }

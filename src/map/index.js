@@ -27,3 +27,11 @@ export default function MapCreator (collection, noCopy) {
     return new _Map(backing)
   }
 }
+
+export function isMap (x) {
+  if (x == null) {
+    return false
+  }
+
+  return x === emptyMapInstance || x instanceof _Map
+}

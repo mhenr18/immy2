@@ -33,3 +33,11 @@ export default function SetCreator (collection, noCopy) {
     return new _Set(backing)
   }
 }
+
+export function isSet (x) {
+  if (x == null) {
+    return false
+  }
+
+  return x === emptySetInstance || x instanceof _Set
+}

@@ -1,10 +1,10 @@
-import ImmyList from './list'
+import ImmyList, { isList } from './list'
 import * as listSelect from './list-select'
 import * as listCombine from './list-combine'
 import * as select from './select'
 
-import ImmyMap from './map'
-import ImmySet from './set'
+import ImmyMap, { isMap } from './map'
+import ImmySet, { isSet } from './set'
 
 export {
   ImmyList,
@@ -17,7 +17,11 @@ export {
   ImmyMap as Map,
 
   ImmySet,
-  ImmySet as Set
+  ImmySet as Set,
+
+  isList as isImmyList,
+  isMap as isImmyMap,
+  isSet as isImmySet
 }
 
 export default {
@@ -31,5 +35,9 @@ export default {
   Map: ImmyMap,
 
   ImmySet,
-  Set: ImmySet
+  Set: ImmySet,
+
+  isImmyList: isList,
+  isImmyMap: isMap,
+  isImmySet: isSet
 }
