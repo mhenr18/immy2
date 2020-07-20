@@ -101,6 +101,10 @@ class _EmptyList {
     }
   }
 
+  slice (begin, end) {
+    return this
+  }
+
   splice (/* arguments */) {
     const list = new _List([])
     return list.splice.apply(list, arguments)

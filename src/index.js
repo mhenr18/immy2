@@ -6,6 +6,8 @@ import * as select from './select'
 import ImmyMap, { isMap } from './map'
 import ImmySet, { isSet } from './set'
 
+import { compareKeys } from './util'
+
 export {
   ImmyList,
   ImmyList as List,
@@ -21,7 +23,9 @@ export {
 
   isList as isImmyList,
   isMap as isImmyMap,
-  isSet as isImmySet
+  isSet as isImmySet,
+
+  compareKeys as compareOrderableKeys
 }
 
 export default {
@@ -39,5 +43,7 @@ export default {
 
   isImmyList: isList,
   isImmyMap: isMap,
-  isImmySet: isSet
+  isImmySet: isSet,
+
+  compareOrderableKeys: compareKeys
 }

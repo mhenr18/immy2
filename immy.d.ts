@@ -101,6 +101,7 @@ declare module 'immy' {
     shift (): ImmyList<T>
     shiftMany (deleteCount: number): ImmyList<T>
     setSize (newSize: number): ImmyList<T>
+    slice (begin?: number, end?: number): ImmyList<T>
     splice (index: number, removeNum?: number): ImmyList<T>
     splice (index: number, removeNum: number, ...values: T[]): ImmyList<T>
     toArray (): T[]
@@ -270,4 +271,6 @@ declare module 'immy' {
   export function isImmyList (maybeList: any): maybeList is ImmyList<any>
   export function isImmySet (maybeSet: any): maybeSet is ImmySet<any>
   export function isImmyMap (maybeMap: any): maybeMap is ImmyMap<any, any>
+
+  export function compareOrderableKeys (a: Orderable, b: Orderable): -1 | 0 | 1
 }

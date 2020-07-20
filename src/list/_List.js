@@ -430,6 +430,10 @@ export default class _List {
     }
   }
 
+  slice (begin, end) {
+    return ImmyList(this.toArray().slice(begin, end), true)
+  }
+
   splice (/* arguments */) {
     if (arguments.length === 0) {
       return this
